@@ -38,9 +38,17 @@ export const addTransaction = async (transaction: {
   category: string;
   date: Date;
 }) => {
+  // Get the current user's ID
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  if (!user) {
+    throw new Error('User must be logged in to add a transaction');
+  }
+
   const { data, error } = await supabase
     .from('transactions')
     .insert({
+      user_id: user.id,
       amount: transaction.amount,
       description: transaction.description,
       category: transaction.category,
@@ -134,9 +142,17 @@ export const addBudget = async (budget: {
   const currentMonth = currentDate.getMonth() + 1; // 1-12
   const currentYear = currentDate.getFullYear();
 
+  // Get the current user's ID
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  if (!user) {
+    throw new Error('User must be logged in to add a budget');
+  }
+
   const { data, error } = await supabase
     .from('budgets')
     .insert({
+      user_id: user.id,
       category: budget.category,
       allocated: budget.allocated,
       month: currentMonth,
