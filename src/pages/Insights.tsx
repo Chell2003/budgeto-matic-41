@@ -104,7 +104,7 @@ const Insights = () => {
         setInsights([
           {
             title: 'Welcome to Insights',
-            description: 'This is where you'll find personalized financial insights once you start tracking transactions.',
+            description: 'This is where you\'ll find personalized financial insights once you start tracking transactions.',
             type: 'tip' as InsightType,
             actionLabel: 'Get started',
           }
