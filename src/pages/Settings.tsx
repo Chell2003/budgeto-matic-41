@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import MobileLayout from '@/components/layout/MobileLayout';
 import { Card, CardContent } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
@@ -8,6 +8,15 @@ import {
   Lock, LogOut, User, ChevronRight
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useAuth } from '@/hooks/use-auth';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { supabase } from '@/integrations/supabase/client';
+
+interface Profile {
+  username: string | null;
+  full_name: string | null;
+  avatar_url: string | null;
+}
 
 const SettingsItem = ({ 
   icon: Icon, 
@@ -42,6 +51,52 @@ const SettingsItem = ({
 );
 
 const Settings = () => {
+  const { user, signOut } = useAuth();
+  const [profile, setProfile] = useState<Profile | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function getProfile() {
+      if (!user) return;
+      
+      try {
+        setLoading(true);
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('username, full_name, avatar_url')
+          .eq('id', user.id)
+          .single();
+          
+        if (error) {
+          throw error;
+        }
+        
+        setProfile(data);
+      } catch (error) {
+        console.error('Error loading profile:', error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    
+    getProfile();
+  }, [user]);
+
+  const getInitials = () => {
+    if (profile?.full_name) {
+      return profile.full_name
+        .split(' ')
+        .map(name => name[0])
+        .join('')
+        .toUpperCase();
+    }
+    return user?.email?.substring(0, 2).toUpperCase() || '?';
+  };
+
+  const handleSignOut = async () => {
+    await signOut();
+  };
+
   return (
     <MobileLayout currentPage="settings">
       <header className="mb-6">
@@ -52,12 +107,15 @@ const Settings = () => {
       <Card className="bg-white shadow-subtle mb-6">
         <CardContent className="p-4">
           <div className="flex items-center">
-            <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mr-4">
-              <User size={24} className="text-primary" />
-            </div>
+            <Avatar className="w-14 h-14 mr-4">
+              <AvatarImage src={profile?.avatar_url || undefined} />
+              <AvatarFallback className="bg-primary/10 text-primary">
+                {getInitials()}
+              </AvatarFallback>
+            </Avatar>
             <div>
-              <h2 className="font-medium">John Smith</h2>
-              <p className="text-sm text-muted-foreground">john.smith@example.com</p>
+              <h2 className="font-medium">{profile?.full_name || profile?.username || 'User'}</h2>
+              <p className="text-sm text-muted-foreground">{user?.email}</p>
             </div>
           </div>
         </CardContent>
@@ -132,6 +190,7 @@ const Settings = () => {
                 icon={LogOut} 
                 label="Sign Out" 
                 rightElement={null}
+                onClick={handleSignOut}
               />
             </CardContent>
           </Card>
