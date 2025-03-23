@@ -12,20 +12,20 @@ const Budget = () => {
   const [isLoading, setIsLoading] = useState(true);
   const { user } = useAuth();
 
-  useEffect(() => {
-    const fetchBudgets = async () => {
-      try {
-        setIsLoading(true);
-        const data = await getBudgets();
-        setBudgetCategories(data);
-      } catch (error) {
-        console.error('Error fetching budgets:', error);
-        toast.error('Failed to load budget data');
-      } finally {
-        setIsLoading(false);
-      }
-    };
+  const fetchBudgets = async () => {
+    try {
+      setIsLoading(true);
+      const data = await getBudgets();
+      setBudgetCategories(data);
+    } catch (error) {
+      console.error('Error fetching budgets:', error);
+      toast.error('Failed to load budget data');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
+  useEffect(() => {
     if (user) {
       fetchBudgets();
     }
@@ -56,18 +56,19 @@ const Budget = () => {
 
           <div className="mt-8">
             <h2 className="text-lg font-medium mb-4">Budget Categories</h2>
-            <BudgetList budgetCategories={budgetCategories} />
+            <BudgetList 
+              budgetCategories={budgetCategories} 
+              onBudgetCreated={fetchBudgets}
+            />
           </div>
         </>
       ) : (
         <div className="text-center py-12">
           <p className="text-muted-foreground mb-4">No budget categories set up yet.</p>
-          <button
-            className="bg-primary text-white px-4 py-2 rounded-md"
-            onClick={() => toast.info("Budget creation coming soon!")}
-          >
-            Create Budget
-          </button>
+          <BudgetList 
+            budgetCategories={[]} 
+            onBudgetCreated={fetchBudgets}
+          />
         </div>
       )}
     </MobileLayout>

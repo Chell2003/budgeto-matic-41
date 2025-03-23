@@ -1,17 +1,20 @@
 
 import React from 'react';
-import { BudgetCategory } from './BudgetChart';
 import { Progress } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
+import { Budget } from '@/services/financeService';
+import CreateBudgetDialog from './CreateBudgetDialog';
 
 interface BudgetListProps {
-  budgetCategories: BudgetCategory[];
+  budgetCategories: Budget[];
   onSelectCategory?: (categoryId: string) => void;
+  onBudgetCreated?: () => void;
 }
 
 const BudgetList: React.FC<BudgetListProps> = ({ 
   budgetCategories,
-  onSelectCategory
+  onSelectCategory,
+  onBudgetCreated = () => {}
 }) => {
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
@@ -35,7 +38,7 @@ const BudgetList: React.FC<BudgetListProps> = ({
             onClick={() => onSelectCategory && onSelectCategory(category.id)}
           >
             <div className="flex justify-between items-center mb-1">
-              <h4 className="font-medium">{category.name}</h4>
+              <h4 className="font-medium">{category.category}</h4>
               <div className="text-right">
                 <p className="text-sm font-semibold">
                   {formatCurrency(category.spent)} / {formatCurrency(category.allocated)}
@@ -61,9 +64,7 @@ const BudgetList: React.FC<BudgetListProps> = ({
         );
       })}
       
-      <button className="w-full py-3 bg-muted rounded-xl text-sm font-medium text-center text-muted-foreground hover:bg-muted/80 transition-colors">
-        + Add Budget Category
-      </button>
+      <CreateBudgetDialog onBudgetCreated={onBudgetCreated} />
     </div>
   );
 };
