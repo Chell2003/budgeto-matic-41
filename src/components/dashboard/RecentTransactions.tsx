@@ -2,7 +2,7 @@
 import React from 'react';
 import { 
   ShoppingBag, Coffee, Car, Home, Gift, 
-  Utensils, Briefcase, Smartphone
+  Utensils, Briefcase, Smartphone, PiggyBank, ArrowUpRight
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -29,6 +29,8 @@ const categoryIcons: Record<string, React.ElementType> = {
   gifts: Gift,
   salary: Briefcase,
   subscription: Smartphone,
+  income: ArrowUpRight,
+  savings: PiggyBank
 };
 
 // Map of category to background color
@@ -41,6 +43,8 @@ const categoryColors: Record<string, string> = {
   gifts: 'bg-pink-100',
   salary: 'bg-green-100',
   subscription: 'bg-gray-100',
+  income: 'bg-finance-income/10',
+  savings: 'bg-finance-saving/10'
 };
 
 const RecentTransactions: React.FC<RecentTransactionsProps> = ({ transactions }) => {
@@ -77,9 +81,10 @@ const RecentTransactions: React.FC<RecentTransactionsProps> = ({ transactions })
           </div>
         ) : (
           transactions.map((transaction) => {
-            const Icon = categoryIcons[transaction.category] || ShoppingBag;
-            const bgColor = categoryColors[transaction.category] || 'bg-gray-100';
+            const Icon = categoryIcons[transaction.category.toLowerCase()] || ShoppingBag;
+            const bgColor = categoryColors[transaction.category.toLowerCase()] || 'bg-gray-100';
             const isExpense = transaction.amount < 0;
+            const isSavings = transaction.category.toLowerCase() === 'savings';
 
             return (
               <div
@@ -97,7 +102,9 @@ const RecentTransactions: React.FC<RecentTransactionsProps> = ({ transactions })
                 </div>
                 <p className={cn(
                   "font-medium",
-                  isExpense ? "text-finance-expense" : "text-finance-income"
+                  isExpense ? "text-finance-expense" : (
+                    isSavings ? "text-finance-saving" : "text-finance-income"
+                  )
                 )}>
                   {isExpense ? "-" : "+"}{formatCurrency(transaction.amount)}
                 </p>

@@ -32,34 +32,39 @@ const Expenses = () => {
     }
   }, [user]);
 
-  const handleAddExpense = async (expense: {
+  const handleAddTransaction = async (transaction: {
     amount: number;
     description: string;
     category: string;
     date: Date;
   }) => {
     try {
-      await addTransaction(expense);
+      await addTransaction(transaction);
       // Refresh transactions after adding
       const updatedTransactions = await getTransactions();
       setTransactions(updatedTransactions);
-      toast.success('Expense added successfully');
+      
+      const transactionType = transaction.amount > 0 
+        ? transaction.category === 'savings' ? 'Savings' : 'Income' 
+        : 'Expense';
+      
+      toast.success(`${transactionType} added successfully`);
     } catch (error) {
-      console.error('Error adding expense:', error);
-      toast.error('Failed to add expense');
+      console.error('Error adding transaction:', error);
+      toast.error('Failed to add transaction');
     }
   };
 
   return (
     <MobileLayout currentPage="expenses">
       <header className="mb-6">
-        <h1 className="text-2xl font-bold">Expenses</h1>
-        <p className="text-muted-foreground mt-1">Track and manage your spending</p>
+        <h1 className="text-2xl font-bold">Transactions</h1>
+        <p className="text-muted-foreground mt-1">Track your income, expenses and savings</p>
       </header>
 
       <ExpenseForm 
         categories={expenseCategories}
-        onAddExpense={handleAddExpense}
+        onAddExpense={handleAddTransaction}
       />
 
       <div className="mt-8">

@@ -11,6 +11,13 @@ import {
   PopoverTrigger 
 } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
+import { 
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { cn } from '@/lib/utils';
 import AmountInput from '../common/AmountInput';
 import CategorySelector, { ExpenseCategory } from './CategorySelector';
@@ -30,18 +37,31 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({ categories, onAddExpense }) =
   const [description, setDescription] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [date, setDate] = useState<Date>(new Date());
+  const [transactionType, setTransactionType] = useState<'expense' | 'income' | 'savings'>('expense');
   
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (amount === 0 || !description || !selectedCategory) {
+    if (amount === 0 || !description || (transactionType === 'expense' && !selectedCategory)) {
       return;
     }
     
+    // For income and savings, we directly use predefined categories
+    const category = transactionType === 'expense' 
+      ? selectedCategory!
+      : transactionType === 'income' 
+        ? 'income' 
+        : 'savings';
+    
+    // For income and savings, amount should be positive
+    const finalAmount = transactionType === 'expense' 
+      ? -Math.abs(amount) 
+      : Math.abs(amount);
+    
     onAddExpense({
-      amount,
+      amount: finalAmount,
       description,
-      category: selectedCategory,
+      category,
       date,
     });
     
@@ -56,7 +76,23 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({ categories, onAddExpense }) =
     <Card className="glass animate-scale-in">
       <CardContent className="p-6">
         <form onSubmit={handleSubmit} className="space-y-4">
-          <h2 className="text-xl font-semibold mb-4">Add Expense</h2>
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl font-semibold">Add Transaction</h2>
+            
+            <Select 
+              value={transactionType} 
+              onValueChange={(value) => setTransactionType(value as 'expense' | 'income' | 'savings')}
+            >
+              <SelectTrigger className="w-[130px]">
+                <SelectValue placeholder="Type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="expense" className="text-finance-expense">Expense</SelectItem>
+                <SelectItem value="income" className="text-finance-income">Income</SelectItem>
+                <SelectItem value="savings" className="text-finance-saving">Savings</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
           
           <div className="space-y-2">
             <p className="text-sm font-medium text-muted-foreground">
@@ -65,7 +101,11 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({ categories, onAddExpense }) =
             <AmountInput 
               value={amount} 
               onChange={setAmount}
-              isExpense={true}
+              isExpense={transactionType === 'expense'}
+              className={cn(
+                transactionType === 'income' && "text-finance-income",
+                transactionType === 'savings' && "text-finance-saving"
+              )}
             />
           </div>
           
@@ -74,17 +114,19 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({ categories, onAddExpense }) =
               Description
             </p>
             <Input
-              placeholder="What was this expense for?"
+              placeholder={`What was this ${transactionType} for?`}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
             />
           </div>
           
-          <CategorySelector
-            categories={categories}
-            selectedCategory={selectedCategory}
-            onSelectCategory={setSelectedCategory}
-          />
+          {transactionType === 'expense' && (
+            <CategorySelector
+              categories={categories}
+              selectedCategory={selectedCategory}
+              onSelectCategory={setSelectedCategory}
+            />
+          )}
           
           <div className="space-y-2">
             <p className="text-sm font-medium text-muted-foreground">
@@ -103,13 +145,12 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({ categories, onAddExpense }) =
                   {date ? format(date, "PPP") : <span>Pick a date</span>}
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-auto p-0 pointer-events-auto" align="start">
+              <PopoverContent className="w-auto p-0" align="start">
                 <Calendar
                   mode="single"
                   selected={date}
                   onSelect={(date) => date && setDate(date)}
                   initialFocus
-                  className="p-3 pointer-events-auto"
                 />
               </PopoverContent>
             </Popover>
@@ -117,10 +158,14 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({ categories, onAddExpense }) =
           
           <Button 
             type="submit" 
-            className="w-full mt-4"
-            disabled={amount === 0 || !description || !selectedCategory}
+            className={cn(
+              "w-full mt-4",
+              transactionType === 'income' && "bg-finance-income hover:bg-finance-income/90",
+              transactionType === 'savings' && "bg-finance-saving hover:bg-finance-saving/90"
+            )}
+            disabled={amount === 0 || !description || (transactionType === 'expense' && !selectedCategory)}
           >
-            Add Expense
+            Add {transactionType.charAt(0).toUpperCase() + transactionType.slice(1)}
           </Button>
         </form>
       </CardContent>

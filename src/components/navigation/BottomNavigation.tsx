@@ -4,11 +4,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { Home, Wallet, BarChart3, LineChart, Settings } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-interface BottomNavigationProps {
-  currentPage: string;
-}
-
-const BottomNavigation: React.FC<BottomNavigationProps> = ({ currentPage }) => {
+const BottomNavigation: React.FC = () => {
   const location = useLocation();
   
   const navItems = [
@@ -20,7 +16,7 @@ const BottomNavigation: React.FC<BottomNavigationProps> = ({ currentPage }) => {
   ];
 
   return (
-    <div className="fixed bottom-0 w-full max-w-md mx-auto">
+    <div className="fixed bottom-0 w-full max-w-md mx-auto z-50">
       <div className="glass border-t border-gray-100 px-2 pt-2 pb-safe">
         <nav className="flex justify-around">
           {navItems.map((item) => {
@@ -35,10 +31,10 @@ const BottomNavigation: React.FC<BottomNavigationProps> = ({ currentPage }) => {
                 key={item.name}
                 to={item.path}
                 className={cn(
-                  "flex flex-col items-center px-3 py-2 rounded-xl press-effect",
+                  "flex flex-col items-center px-3 py-2 rounded-xl",
                   isActive 
                     ? "text-primary font-medium" 
-                    : "text-muted-foreground"
+                    : "text-muted-foreground hover:text-foreground"
                 )}
               >
                 <item.icon size={22} className={cn(

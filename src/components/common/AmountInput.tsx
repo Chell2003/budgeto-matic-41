@@ -53,10 +53,7 @@ const AmountInput: React.FC<AmountInputProps> = ({
         value={displayValue}
         onChange={handleChange}
         placeholder={placeholder}
-        className={cn(
-          "pl-7 text-lg font-medium",
-          isExpense ? "text-finance-expense" : "text-finance-income"
-        )}
+        className="pl-7 text-lg font-medium"
       />
     </div>
   );
