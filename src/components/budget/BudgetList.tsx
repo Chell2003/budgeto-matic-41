@@ -53,9 +53,9 @@ const BudgetList: React.FC<BudgetListProps> = ({
               value={Math.min(percentUsed, 100)} 
               className={cn(
                 "h-2 mt-2",
-                isOverBudget ? "bg-red-100" : "bg-gray-100"
+                isOverBudget ? "bg-red-100" : "bg-gray-100",
+                isOverBudget && "[&>div]:bg-finance-expense"
               )}
-              indicatorClassName={isOverBudget ? "bg-finance-expense" : undefined}
             />
           </div>
         );
