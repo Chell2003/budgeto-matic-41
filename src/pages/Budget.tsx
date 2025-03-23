@@ -1,11 +1,36 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import MobileLayout from '@/components/layout/MobileLayout';
 import BudgetChart from '@/components/budget/BudgetChart';
 import BudgetList from '@/components/budget/BudgetList';
-import { budgetCategories } from '@/lib/data';
+import { getBudgets } from '@/services/financeService';
+import { toast } from 'sonner';
+import { useAuth } from '@/hooks/use-auth';
 
 const Budget = () => {
+  const [budgetCategories, setBudgetCategories] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const { user } = useAuth();
+
+  useEffect(() => {
+    const fetchBudgets = async () => {
+      try {
+        setIsLoading(true);
+        const data = await getBudgets();
+        setBudgetCategories(data);
+      } catch (error) {
+        console.error('Error fetching budgets:', error);
+        toast.error('Failed to load budget data');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    if (user) {
+      fetchBudgets();
+    }
+  }, [user]);
+
   // Calculate total budget and total spent
   const totalBudget = budgetCategories.reduce((sum, category) => sum + category.allocated, 0);
   const totalSpent = budgetCategories.reduce((sum, category) => sum + category.spent, 0);
@@ -17,16 +42,34 @@ const Budget = () => {
         <p className="text-muted-foreground mt-1">Track your spending limits</p>
       </header>
 
-      <BudgetChart 
-        budgetCategories={budgetCategories}
-        totalBudget={totalBudget}
-        totalSpent={totalSpent}
-      />
+      {isLoading ? (
+        <div className="flex justify-center p-12">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+        </div>
+      ) : budgetCategories.length > 0 ? (
+        <>
+          <BudgetChart 
+            budgetCategories={budgetCategories}
+            totalBudget={totalBudget}
+            totalSpent={totalSpent}
+          />
 
-      <div className="mt-8">
-        <h2 className="text-lg font-medium mb-4">Budget Categories</h2>
-        <BudgetList budgetCategories={budgetCategories} />
-      </div>
+          <div className="mt-8">
+            <h2 className="text-lg font-medium mb-4">Budget Categories</h2>
+            <BudgetList budgetCategories={budgetCategories} />
+          </div>
+        </>
+      ) : (
+        <div className="text-center py-12">
+          <p className="text-muted-foreground mb-4">No budget categories set up yet.</p>
+          <button
+            className="bg-primary text-white px-4 py-2 rounded-md"
+            onClick={() => toast.info("Budget creation coming soon!")}
+          >
+            Create Budget
+          </button>
+        </div>
+      )}
     </MobileLayout>
   );
 };

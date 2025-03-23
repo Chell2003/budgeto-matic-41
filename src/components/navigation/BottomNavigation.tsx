@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { Home, Wallet, BarChart3, LineChart, Settings } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -9,6 +9,8 @@ interface BottomNavigationProps {
 }
 
 const BottomNavigation: React.FC<BottomNavigationProps> = ({ currentPage }) => {
+  const location = useLocation();
+  
   const navItems = [
     { name: 'Dashboard', path: '/', icon: Home },
     { name: 'Expenses', path: '/expenses', icon: Wallet },
@@ -22,7 +24,12 @@ const BottomNavigation: React.FC<BottomNavigationProps> = ({ currentPage }) => {
       <div className="glass border-t border-gray-100 px-2 pt-2 pb-safe">
         <nav className="flex justify-around">
           {navItems.map((item) => {
-            const isActive = currentPage === item.name.toLowerCase();
+            // Check if current location path matches this nav item path
+            // For the dashboard, we need to handle both '/' and '/dashboard'
+            const isActive = 
+              (item.path === '/' && (location.pathname === '/' || location.pathname === '/dashboard')) ||
+              (item.path !== '/' && location.pathname === item.path);
+              
             return (
               <Link
                 key={item.name}
