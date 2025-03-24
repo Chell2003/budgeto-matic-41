@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { 
   ShoppingBag, Coffee, Car, Home, Gift, 
@@ -6,6 +7,7 @@ import {
   UserCheck, Send, HelpCircle, CreditCard
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { Budget } from '@/services/financeService';
 
 // Type for transaction data
 export interface Transaction {
@@ -18,6 +20,7 @@ export interface Transaction {
 
 interface RecentTransactionsProps {
   transactions: Transaction[];
+  budgets?: Budget[];
 }
 
 // Map of category to icon
@@ -78,7 +81,7 @@ const categoryColors: Record<string, string> = {
   savings: 'bg-finance-saving/10'
 };
 
-const RecentTransactions: React.FC<RecentTransactionsProps> = ({ transactions }) => {
+const RecentTransactions: React.FC<RecentTransactionsProps> = ({ transactions, budgets = [] }) => {
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
@@ -94,6 +97,21 @@ const RecentTransactions: React.FC<RecentTransactionsProps> = ({ transactions })
       month: 'short', 
       day: 'numeric' 
     });
+  };
+
+  // Find the related budget for a category
+  const findBudgetForCategory = (category: string) => {
+    return budgets.find(b => b.category.toLowerCase() === category.toLowerCase());
+  };
+
+  // Calculate budget percentage for a transaction
+  const getBudgetPercentage = (transaction: Transaction) => {
+    if (transaction.amount >= 0) return null; // Only for expenses
+    
+    const budget = findBudgetForCategory(transaction.category);
+    if (!budget) return null;
+    
+    return Math.round((budget.spent / budget.allocated) * 100);
   };
 
   return (
@@ -117,29 +135,45 @@ const RecentTransactions: React.FC<RecentTransactionsProps> = ({ transactions })
             const bgColor = categoryColors[categoryKey] || 'bg-gray-100';
             const isExpense = transaction.amount < 0;
             const isSavings = transaction.category.toLowerCase() === 'savings';
+            const budgetPercentage = getBudgetPercentage(transaction);
+            const budget = isExpense ? findBudgetForCategory(transaction.category) : null;
+            const isOverBudget = budget && budget.spent > budget.allocated;
 
             return (
               <div
                 key={transaction.id}
-                className="flex items-center justify-between p-3 rounded-xl bg-white shadow-subtle press-effect"
+                className="flex flex-col p-3 rounded-xl bg-white shadow-subtle press-effect"
               >
-                <div className="flex items-center">
-                  <div className={cn("w-10 h-10 rounded-lg flex items-center justify-center mr-3", bgColor)}>
-                    <Icon size={18} className="text-foreground opacity-75" />
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center">
+                    <div className={cn("w-10 h-10 rounded-lg flex items-center justify-center mr-3", bgColor)}>
+                      <Icon size={18} className="text-foreground opacity-75" />
+                    </div>
+                    <div>
+                      <p className="font-medium text-sm">{transaction.description}</p>
+                      <p className="text-xs text-muted-foreground">{formatDate(transaction.date)}</p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="font-medium text-sm">{transaction.description}</p>
-                    <p className="text-xs text-muted-foreground">{formatDate(transaction.date)}</p>
-                  </div>
+                  <p className={cn(
+                    "font-medium",
+                    isExpense ? "text-finance-expense" : (
+                      isSavings ? "text-finance-saving" : "text-finance-income"
+                    )
+                  )}>
+                    {isExpense ? "-" : "+"}{formatCurrency(transaction.amount)}
+                  </p>
                 </div>
-                <p className={cn(
-                  "font-medium",
-                  isExpense ? "text-finance-expense" : (
-                    isSavings ? "text-finance-saving" : "text-finance-income"
-                  )
-                )}>
-                  {isExpense ? "-" : "+"}{formatCurrency(transaction.amount)}
-                </p>
+                
+                {budget && (
+                  <div className="mt-2 pl-13">
+                    <p className="text-xs text-muted-foreground">
+                      Budget: {formatCurrency(budget.allocated)} 
+                      {isOverBudget && (
+                        <span className="text-finance-expense ml-1">(Over budget)</span>
+                      )}
+                    </p>
+                  </div>
+                )}
               </div>
             );
           })
