@@ -2,7 +2,9 @@
 import React from 'react';
 import { 
   ShoppingBag, Coffee, Car, Home, Gift, Utensils, 
-  Briefcase, Smartphone, Plus, CreditCard
+  Briefcase, Smartphone, Plus, CreditCard, DollarSign,
+  Wallet, PiggyBank, ArrowRightLeft, Shield, ShieldCheck,
+  UserCheck, Send, HelpCircle
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -17,6 +19,7 @@ interface CategorySelectorProps {
   categories: ExpenseCategory[];
   selectedCategory: string | null;
   onSelectCategory: (categoryId: string) => void;
+  type?: 'expense' | 'income' | 'savings';
 }
 
 // Map of icon names to icon components
@@ -31,17 +34,27 @@ const iconMap: Record<string, React.ElementType> = {
   smartphone: Smartphone,
   creditCard: CreditCard,
   plus: Plus,
+  dollarSign: DollarSign,
+  wallet: Wallet,
+  piggyBank: PiggyBank,
+  arrowRightLeft: ArrowRightLeft,
+  shield: Shield,
+  shieldCheck: ShieldCheck,
+  userCheck: UserCheck,
+  send: Send,
+  helpCircle: HelpCircle
 };
 
 const CategorySelector: React.FC<CategorySelectorProps> = ({
   categories,
   selectedCategory,
   onSelectCategory,
+  type = 'expense'
 }) => {
   return (
     <div className="mb-6">
       <p className="text-sm font-medium mb-3 text-muted-foreground">
-        Select Category
+        Select {type === 'income' ? 'Income Source' : 'Category'}
       </p>
       <div className="grid grid-cols-4 gap-3">
         {categories.map((category) => {

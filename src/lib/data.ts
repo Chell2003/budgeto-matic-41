@@ -60,6 +60,76 @@ export const expenseCategories: ExpenseCategory[] = [
   },
 ];
 
+// Income categories
+export const incomeCategories: ExpenseCategory[] = [
+  {
+    id: 'income-1',
+    name: 'Salary',
+    icon: 'briefcase',
+    color: 'green',
+  },
+  {
+    id: 'income-2',
+    name: 'Allowance',
+    icon: 'wallet',
+    color: 'emerald',
+  },
+  {
+    id: 'income-3',
+    name: 'Cash Savings',
+    icon: 'piggyBank',
+    color: 'teal',
+  },
+  {
+    id: 'income-4',
+    name: 'Extra Income',
+    icon: 'dollarSign',
+    color: 'cyan',
+  },
+  {
+    id: 'income-5',
+    name: 'Fund Transfer',
+    icon: 'arrowRightLeft',
+    color: 'sky',
+  },
+  {
+    id: 'income-6',
+    name: 'Government Aid',
+    icon: 'shield',
+    color: 'blue',
+  },
+  {
+    id: 'income-7',
+    name: 'Insurance',
+    icon: 'shieldCheck',
+    color: 'indigo',
+  },
+  {
+    id: 'income-8',
+    name: 'Pension',
+    icon: 'userCheck',
+    color: 'violet',
+  },
+  {
+    id: 'income-9',
+    name: 'Remittance',
+    icon: 'send',
+    color: 'purple',
+  },
+  {
+    id: 'income-10',
+    name: 'Others',
+    icon: 'helpCircle',
+    color: 'gray',
+  },
+  {
+    id: 'income-11',
+    name: 'Uncategorized',
+    icon: 'helpCircle',
+    color: 'slate',
+  },
+];
+
 // Mock transactions
 export const transactions: Transaction[] = [
   {

@@ -2,7 +2,9 @@
 import React from 'react';
 import { 
   ShoppingBag, Coffee, Car, Home, Gift, 
-  Utensils, Briefcase, Smartphone, PiggyBank, ArrowUpRight
+  Utensils, Briefcase, Smartphone, PiggyBank, ArrowUpRight,
+  Wallet, DollarSign, ArrowRightLeft, Shield, ShieldCheck,
+  UserCheck, Send, HelpCircle
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -21,28 +23,58 @@ interface RecentTransactionsProps {
 
 // Map of category to icon
 const categoryIcons: Record<string, React.ElementType> = {
+  // Expense categories
   shopping: ShoppingBag,
   food: Utensils,
   coffee: Coffee,
   transport: Car,
   housing: Home,
   gifts: Gift,
+  bills: CreditCard,
+  
+  // Income categories
   salary: Briefcase,
-  subscription: Smartphone,
+  allowance: Wallet,
+  "cash savings": PiggyBank,
+  "extra income": DollarSign,
+  "fund transfer": ArrowRightLeft,
+  "government aid": Shield,
+  insurance: ShieldCheck,
+  pension: UserCheck,
+  remittance: Send,
+  others: HelpCircle,
+  uncategorized: HelpCircle,
+  
+  // Special categories
   income: ArrowUpRight,
   savings: PiggyBank
 };
 
 // Map of category to background color
 const categoryColors: Record<string, string> = {
+  // Expense categories
   shopping: 'bg-purple-100',
   food: 'bg-orange-100',
   coffee: 'bg-amber-100',
   transport: 'bg-blue-100',
   housing: 'bg-teal-100',
   gifts: 'bg-pink-100',
+  bills: 'bg-gray-100',
+  
+  // Income categories
   salary: 'bg-green-100',
-  subscription: 'bg-gray-100',
+  allowance: 'bg-emerald-100',
+  "cash savings": 'bg-teal-100',
+  "extra income": 'bg-cyan-100',
+  "fund transfer": 'bg-sky-100',
+  "government aid": 'bg-blue-100',
+  insurance: 'bg-indigo-100',
+  pension: 'bg-violet-100',
+  remittance: 'bg-purple-100',
+  others: 'bg-gray-100',
+  uncategorized: 'bg-slate-100',
+  
+  // Special categories
   income: 'bg-finance-income/10',
   savings: 'bg-finance-saving/10'
 };
@@ -81,8 +113,9 @@ const RecentTransactions: React.FC<RecentTransactionsProps> = ({ transactions })
           </div>
         ) : (
           transactions.map((transaction) => {
-            const Icon = categoryIcons[transaction.category.toLowerCase()] || ShoppingBag;
-            const bgColor = categoryColors[transaction.category.toLowerCase()] || 'bg-gray-100';
+            const categoryKey = transaction.category.toLowerCase();
+            const Icon = categoryIcons[categoryKey] || ShoppingBag;
+            const bgColor = categoryColors[categoryKey] || 'bg-gray-100';
             const isExpense = transaction.amount < 0;
             const isSavings = transaction.category.toLowerCase() === 'savings';
 

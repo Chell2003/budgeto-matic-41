@@ -21,6 +21,7 @@ import {
 import { cn } from '@/lib/utils';
 import AmountInput from '../common/AmountInput';
 import CategorySelector, { ExpenseCategory } from './CategorySelector';
+import { incomeCategories } from '@/lib/data';
 
 interface ExpenseFormProps {
   categories: ExpenseCategory[];
@@ -36,22 +37,36 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({ categories, onAddExpense }) =
   const [amount, setAmount] = useState<number>(0);
   const [description, setDescription] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [selectedIncomeCategory, setSelectedIncomeCategory] = useState<string | null>(null);
   const [date, setDate] = useState<Date>(new Date());
   const [transactionType, setTransactionType] = useState<'expense' | 'income' | 'savings'>('expense');
   
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (amount === 0 || !description || (transactionType === 'expense' && !selectedCategory)) {
+    const isMissingRequiredFields = 
+      amount === 0 || 
+      !description || 
+      (transactionType === 'expense' && !selectedCategory) ||
+      (transactionType === 'income' && !selectedIncomeCategory);
+    
+    if (isMissingRequiredFields) {
       return;
     }
     
-    // For income and savings, we directly use predefined categories
-    const category = transactionType === 'expense' 
-      ? selectedCategory!
-      : transactionType === 'income' 
-        ? 'income' 
-        : 'savings';
+    // For income, use the selected income category
+    // For savings, directly use 'savings'
+    // For expense, use the selected expense category
+    let category = '';
+    
+    if (transactionType === 'expense') {
+      category = selectedCategory!;
+    } else if (transactionType === 'income') {
+      const incomeCategory = incomeCategories.find(cat => cat.id === selectedIncomeCategory);
+      category = incomeCategory ? incomeCategory.name.toLowerCase() : 'income';
+    } else {
+      category = 'savings';
+    }
     
     // For income and savings, amount should be positive
     const finalAmount = transactionType === 'expense' 
@@ -69,7 +84,13 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({ categories, onAddExpense }) =
     setAmount(0);
     setDescription('');
     setSelectedCategory(null);
+    setSelectedIncomeCategory(null);
     setDate(new Date());
+  };
+  
+  const resetCategories = () => {
+    setSelectedCategory(null);
+    setSelectedIncomeCategory(null);
   };
   
   return (
@@ -81,7 +102,10 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({ categories, onAddExpense }) =
             
             <Select 
               value={transactionType} 
-              onValueChange={(value) => setTransactionType(value as 'expense' | 'income' | 'savings')}
+              onValueChange={(value) => {
+                setTransactionType(value as 'expense' | 'income' | 'savings');
+                resetCategories();
+              }}
             >
               <SelectTrigger className="w-[130px]">
                 <SelectValue placeholder="Type" />
@@ -125,6 +149,16 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({ categories, onAddExpense }) =
               categories={categories}
               selectedCategory={selectedCategory}
               onSelectCategory={setSelectedCategory}
+              type="expense"
+            />
+          )}
+          
+          {transactionType === 'income' && (
+            <CategorySelector
+              categories={incomeCategories}
+              selectedCategory={selectedIncomeCategory}
+              onSelectCategory={setSelectedIncomeCategory}
+              type="income"
             />
           )}
           
@@ -163,7 +197,12 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({ categories, onAddExpense }) =
               transactionType === 'income' && "bg-finance-income hover:bg-finance-income/90",
               transactionType === 'savings' && "bg-finance-saving hover:bg-finance-saving/90"
             )}
-            disabled={amount === 0 || !description || (transactionType === 'expense' && !selectedCategory)}
+            disabled={
+              amount === 0 || 
+              !description || 
+              (transactionType === 'expense' && !selectedCategory) ||
+              (transactionType === 'income' && !selectedIncomeCategory)
+            }
           >
             Add {transactionType.charAt(0).toUpperCase() + transactionType.slice(1)}
           </Button>
