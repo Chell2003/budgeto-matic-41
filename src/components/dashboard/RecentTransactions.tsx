@@ -1,10 +1,9 @@
-
 import React from 'react';
 import { 
   ShoppingBag, Coffee, Car, Home, Gift, 
   Utensils, Briefcase, Smartphone, PiggyBank, ArrowUpRight,
   Wallet, DollarSign, ArrowRightLeft, Shield, ShieldCheck,
-  UserCheck, Send, HelpCircle
+  UserCheck, Send, HelpCircle, CreditCard
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
