@@ -30,7 +30,7 @@ const BudgetChart: React.FC<BudgetChartProps> = ({
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
-      currency: 'USD',
+      currency: 'PHP',
       maximumFractionDigits: 0,
     }).format(amount);
   };

@@ -19,7 +19,7 @@ const MobileLayout: React.FC<MobileLayoutProps> = ({ children, currentPage }) =>
         </AnimatedTransition>
       </div>
       
-      <BottomNavigation/>
+      <BottomNavigation currentPage={currentPage}/>
     </div>
   );
 };

@@ -45,7 +45,7 @@ const AmountInput: React.FC<AmountInputProps> = ({
   return (
     <div className={cn("relative", className)}>
       <div className="absolute left-3 inset-y-0 flex items-center pointer-events-none">
-        <span className="text-gray-500">$</span>
+        <span className="text-gray-500">₱</span>
       </div>
       <Input
         type="text"

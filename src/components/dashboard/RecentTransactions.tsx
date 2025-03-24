@@ -51,7 +51,7 @@ const RecentTransactions: React.FC<RecentTransactionsProps> = ({ transactions })
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
-      currency: 'USD',
+      currency: 'PHP',
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     }).format(Math.abs(amount));
