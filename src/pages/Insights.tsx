@@ -112,8 +112,29 @@ const Insights = () => {
 
   return (
     <MobileLayout currentPage="insights">
-      {// ... keep existing code (header and loading state) the same
-      }
+      <header className="mb-6">
+        <h1 className="text-2xl font-bold">Insights</h1>
+        <p className="text-muted-foreground mt-1">Financial analysis and tips</p>
+      </header>
+
+      {isLoading ? (
+        <div className="flex justify-center p-12">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+        </div>
+      ) : (
+        <div className="grid gap-4">
+          {insights.map((insight, index) => (
+            <InsightCard
+              key={index}
+              title={insight.title}
+              description={insight.description}
+              type={insight.type}
+              changePercentage={insight.changePercentage}
+              actionLabel={insight.actionLabel}
+            />
+          ))}
+        </div>
+      )}
     </MobileLayout>
   );
 };
