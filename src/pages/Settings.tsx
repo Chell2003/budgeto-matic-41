@@ -160,8 +160,48 @@ const Settings = () => {
           </Card>
         </div>
 
-        {// ... keep existing code (other settings sections) the same
-        }
+        <div>
+          <h2 className="text-sm font-semibold text-muted-foreground mb-2 px-1">
+            ACCOUNT
+          </h2>
+          <Card className="bg-white shadow-subtle divide-y">
+            <CardContent className="p-4 pb-0">
+              <SettingsItem 
+                icon={User} 
+                label="Account Details" 
+                description="Manage your personal information"
+              />
+            </CardContent>
+            <CardContent className="p-4 pb-0">
+              <SettingsItem 
+                icon={CreditCard} 
+                label="Payment Methods" 
+                description="Manage your payment options"
+              />
+            </CardContent>
+            <CardContent className="p-4">
+              <SettingsItem 
+                icon={Lock} 
+                label="Security" 
+                description="Passwords and authentication"
+              />
+            </CardContent>
+          </Card>
+        </div>
+
+        <div>
+          <Card className="bg-white shadow-subtle">
+            <CardContent className="p-4">
+              <SettingsItem 
+                icon={LogOut} 
+                label="Log Out" 
+                description="Sign out of your account"
+                onClick={handleSignOut}
+                rightElement={null}
+              />
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </MobileLayout>
   );
