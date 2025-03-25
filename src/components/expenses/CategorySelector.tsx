@@ -70,7 +70,11 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({
                   ? `bg-${category.color}-100 ring-2 ring-${category.color}-500/20` 
                   : "bg-white shadow-subtle hover:bg-gray-50"
               )}
-              onClick={() => onSelectCategory(category.id)}
+              type="button" // Explicitly set type to button to prevent form submission
+              onClick={(e) => {
+                e.preventDefault(); // Prevent any form submission
+                onSelectCategory(category.id);
+              }}
             >
               <div className={cn(
                 "w-10 h-10 rounded-full flex items-center justify-center mb-1",
