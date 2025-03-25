@@ -7,6 +7,13 @@ import {
   UserCheck, Send, HelpCircle
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export type ExpenseCategory = {
   id: string;
@@ -56,39 +63,37 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({
       <p className="text-sm font-medium mb-3 text-muted-foreground">
         Select {type === 'income' ? 'Income Source' : 'Category'}
       </p>
-      <div className="grid grid-cols-4 gap-3">
-        {categories.map((category) => {
-          const Icon = iconMap[category.icon] || ShoppingBag;
-          const isSelected = selectedCategory === category.id;
-          
-          return (
-            <button
-              key={category.id}
-              className={cn(
-                "flex flex-col items-center rounded-xl p-3 transition-all duration-200 press-effect",
-                isSelected 
-                  ? `bg-${category.color}-100 ring-2 ring-${category.color}-500/20` 
-                  : "bg-white shadow-subtle hover:bg-gray-50"
-              )}
-              type="button" // Explicitly set type to button to prevent form submission
-              onClick={(e) => {
-                e.preventDefault(); // Prevent any form submission
-                onSelectCategory(category.id);
-              }}
-            >
-              <div className={cn(
-                "w-10 h-10 rounded-full flex items-center justify-center mb-1",
-                `bg-${category.color}-100`
-              )}>
-                <Icon size={18} className={`text-${category.color}-600`} />
-              </div>
-              <span className="text-xs font-medium mt-1 text-center">
-                {category.name}
-              </span>
-            </button>
-          );
-        })}
-      </div>
+      <Select
+        value={selectedCategory || undefined}
+        onValueChange={onSelectCategory}
+      >
+        <SelectTrigger className="w-full">
+          <SelectValue placeholder={`Choose a ${type === 'income' ? 'source' : 'category'}`} />
+        </SelectTrigger>
+        <SelectContent>
+          {categories.map((category) => {
+            const Icon = iconMap[category.icon] || ShoppingBag;
+            
+            return (
+              <SelectItem 
+                key={category.id} 
+                value={category.id}
+                className="flex items-center gap-2"
+              >
+                <div className="flex items-center gap-2">
+                  <div className={cn(
+                    "w-6 h-6 rounded-full flex items-center justify-center",
+                    `bg-${category.color}-100`
+                  )}>
+                    <Icon size={14} className={`text-${category.color}-600`} />
+                  </div>
+                  <span>{category.name}</span>
+                </div>
+              </SelectItem>
+            );
+          })}
+        </SelectContent>
+      </Select>
     </div>
   );
 };
