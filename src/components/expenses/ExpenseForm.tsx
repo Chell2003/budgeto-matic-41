@@ -1,5 +1,7 @@
-
 import React, { useState } from 'react';
+import { cn } from '@/lib/utils';
+import { Budget } from '@/services/financeService';
+import { getBudgets } from '@/services/financeService';
 import { CalendarIcon } from 'lucide-react';
 import { format } from 'date-fns';
 import { Card, CardContent } from '@/components/ui/card';
@@ -18,7 +20,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { cn } from '@/lib/utils';
 import AmountInput from '../common/AmountInput';
 import CategorySelector, { ExpenseCategory } from './CategorySelector';
 import { incomeCategories } from '@/lib/data';
@@ -31,9 +32,14 @@ interface ExpenseFormProps {
     category: string;
     date: Date;
   }) => void;
+  budgets?: Budget[];
 }
 
-const ExpenseForm: React.FC<ExpenseFormProps> = ({ categories, onAddExpense }) => {
+const ExpenseForm: React.FC<ExpenseFormProps> = ({ 
+  categories, 
+  onAddExpense, 
+  budgets = [] 
+}) => {
   const [amount, setAmount] = useState<number>(0);
   const [description, setDescription] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -54,9 +60,6 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({ categories, onAddExpense }) =
       return;
     }
     
-    // For income, use the selected income category
-    // For savings, directly use 'savings'
-    // For expense, use the selected expense category
     let category = '';
     
     if (transactionType === 'expense') {
@@ -68,7 +71,6 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({ categories, onAddExpense }) =
       category = 'savings';
     }
     
-    // For income and savings, amount should be positive
     const finalAmount = transactionType === 'expense' 
       ? -Math.abs(amount) 
       : Math.abs(amount);
@@ -80,7 +82,6 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({ categories, onAddExpense }) =
       date,
     });
     
-    // Reset form
     setAmount(0);
     setDescription('');
     setSelectedCategory(null);
@@ -93,6 +94,14 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({ categories, onAddExpense }) =
     setSelectedIncomeCategory(null);
   };
   
+  const findBudgetForCategory = (category: string) => {
+    return budgets.find(b => b.category.toLowerCase() === category.toLowerCase());
+  };
+
+  const selectedCategoryBudget = transactionType === 'expense' 
+    ? findBudgetForCategory(selectedCategory || '') 
+    : null;
+
   return (
     <Card className="glass animate-scale-in">
       <CardContent className="p-6">
@@ -189,6 +198,19 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({ categories, onAddExpense }) =
               </PopoverContent>
             </Popover>
           </div>
+          
+          {transactionType === 'expense' && selectedCategory && selectedCategoryBudget && (
+            <div className={cn(
+              "text-xs mt-2 p-2 rounded-md",
+              selectedCategoryBudget.spent + Math.abs(amount) > selectedCategoryBudget.allocated 
+                ? "bg-red-50 text-finance-expense" 
+                : "bg-green-50 text-green-700"
+            )}>
+              {selectedCategoryBudget.spent + Math.abs(amount) > selectedCategoryBudget.allocated 
+                ? "⚠️ This expense will exceed your budget" 
+                : "✅ This expense is within your budget"}
+            </div>
+          )}
           
           <Button 
             type="submit" 
