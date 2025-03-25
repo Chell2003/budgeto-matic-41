@@ -102,7 +102,7 @@ const Expenses = () => {
       <ExpenseForm 
         categories={expenseCategories}
         onAddExpense={handleAddTransaction}
-        budgets={budgets} // Pass budgets here
+        budgets={budgets}
       />
 
       {!isBudgetLoading && budgets.length > 0 && (

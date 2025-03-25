@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+
+import React, { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import { Budget } from '@/services/financeService';
 import { getBudgets } from '@/services/financeService';
@@ -46,6 +47,50 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
   const [selectedIncomeCategory, setSelectedIncomeCategory] = useState<string | null>(null);
   const [date, setDate] = useState<Date>(new Date());
   const [transactionType, setTransactionType] = useState<'expense' | 'income' | 'savings'>('expense');
+  
+  // Create combined expense categories from budgets and predefined categories
+  const [combinedCategories, setCombinedCategories] = useState<ExpenseCategory[]>(categories);
+
+  // Update combined categories when budgets change
+  useEffect(() => {
+    if (budgets.length > 0) {
+      // Create new expense categories from budget categories
+      const budgetCategories = budgets.map(budget => {
+        // Find if this budget category already exists in the predefined categories
+        const existingCategory = categories.find(
+          cat => cat.name.toLowerCase() === budget.category.toLowerCase()
+        );
+        
+        // If it exists, use that one, otherwise create a new category
+        if (existingCategory) {
+          return existingCategory;
+        }
+        
+        // Create a new category from the budget
+        return {
+          id: `budget-${budget.category.toLowerCase().replace(/\s+/g, '-')}`,
+          name: budget.category,
+          icon: 'shoppingBag', // Default icon
+          color: budget.color || 'gray'
+        };
+      });
+      
+      // Combine with predefined categories, avoiding duplicates
+      const combinedCats = [...categories];
+      
+      budgetCategories.forEach(budgetCat => {
+        const exists = combinedCats.some(
+          cat => cat.name.toLowerCase() === budgetCat.name.toLowerCase()
+        );
+        
+        if (!exists) {
+          combinedCats.push(budgetCat);
+        }
+      });
+      
+      setCombinedCategories(combinedCats);
+    }
+  }, [budgets, categories]);
   
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -155,7 +200,7 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
           
           {transactionType === 'expense' && (
             <CategorySelector
-              categories={categories}
+              categories={combinedCategories}
               selectedCategory={selectedCategory}
               onSelectCategory={setSelectedCategory}
               type="expense"
