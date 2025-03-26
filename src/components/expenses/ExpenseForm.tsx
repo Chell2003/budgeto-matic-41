@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import { Budget } from '@/services/financeService';
 import { getBudgets } from '@/services/financeService';
-import { CalendarIcon } from 'lucide-react';
+import { CalendarIcon, PiggyBank } from 'lucide-react';
 import { format } from 'date-fns';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -45,6 +45,7 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
   const [description, setDescription] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedIncomeCategory, setSelectedIncomeCategory] = useState<string | null>(null);
+  const [savingsType, setSavingsType] = useState<'regular' | 'emergency' | 'goal'>('regular');
   const [date, setDate] = useState<Date>(new Date());
   const [transactionType, setTransactionType] = useState<'expense' | 'income' | 'savings'>('expense');
   
@@ -70,7 +71,8 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
       const incomeCategory = incomeCategories.find(cat => cat.id === selectedIncomeCategory);
       category = incomeCategory ? incomeCategory.name.toLowerCase() : 'income';
     } else {
-      category = 'savings';
+      // For savings, we include the savings type in the category
+      category = `savings:${savingsType}`;
     }
     
     const finalAmount = transactionType === 'expense' 
@@ -89,6 +91,9 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
     setSelectedCategory(null);
     setSelectedIncomeCategory(null);
     setDate(new Date());
+    if (transactionType === 'savings') {
+      setSavingsType('regular');
+    }
   };
   
   const resetCategories = () => {
@@ -171,6 +176,42 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
               onSelectCategory={setSelectedIncomeCategory}
               type="income"
             />
+          )}
+
+          {transactionType === 'savings' && (
+            <div className="space-y-2">
+              <p className="text-sm font-medium text-muted-foreground">
+                Savings Type
+              </p>
+              <Select 
+                value={savingsType} 
+                onValueChange={(value) => setSavingsType(value as 'regular' | 'emergency' | 'goal')}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select savings type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="regular" className="flex items-center">
+                    <div className="flex items-center">
+                      <PiggyBank className="mr-2 h-4 w-4 text-finance-saving" />
+                      <span>Regular Savings</span>
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="emergency" className="flex items-center">
+                    <div className="flex items-center">
+                      <PiggyBank className="mr-2 h-4 w-4 text-amber-500" />
+                      <span>Emergency Fund</span>
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="goal" className="flex items-center">
+                    <div className="flex items-center">
+                      <PiggyBank className="mr-2 h-4 w-4 text-purple-500" />
+                      <span>Goal-based Savings</span>
+                    </div>
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           )}
           
           <div className="space-y-2">

@@ -49,6 +49,9 @@ const categoryIcons: Record<string, React.ElementType> = {
   
   // Special categories
   income: ArrowUpRight,
+  "savings:regular": PiggyBank,
+  "savings:emergency": PiggyBank,
+  "savings:goal": PiggyBank,
   savings: PiggyBank
 };
 
@@ -78,6 +81,9 @@ const categoryColors: Record<string, string> = {
   
   // Special categories
   income: 'bg-finance-income/10',
+  "savings:regular": 'bg-finance-saving/10',
+  "savings:emergency": 'bg-amber-100',
+  "savings:goal": 'bg-purple-100',
   savings: 'bg-finance-saving/10'
 };
 
@@ -114,6 +120,26 @@ const RecentTransactions: React.FC<RecentTransactionsProps> = ({ transactions, b
     return Math.round((budget.spent / budget.allocated) * 100);
   };
 
+  // Format savings category for display
+  const formatSavingsCategory = (category: string) => {
+    if (category.startsWith('savings:')) {
+      const type = category.split(':')[1];
+      
+      switch (type) {
+        case 'regular':
+          return 'Regular Savings';
+        case 'emergency':
+          return 'Emergency Fund';
+        case 'goal':
+          return 'Goal-based Savings';
+        default:
+          return 'Savings';
+      }
+    }
+    
+    return category.charAt(0).toUpperCase() + category.slice(1);
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
@@ -134,10 +160,15 @@ const RecentTransactions: React.FC<RecentTransactionsProps> = ({ transactions, b
             const Icon = categoryIcons[categoryKey] || ShoppingBag;
             const bgColor = categoryColors[categoryKey] || 'bg-gray-100';
             const isExpense = transaction.amount < 0;
-            const isSavings = transaction.category.toLowerCase() === 'savings';
+            const isSavings = transaction.category.toLowerCase().includes('savings');
             const budgetPercentage = getBudgetPercentage(transaction);
             const budget = isExpense ? findBudgetForCategory(transaction.category) : null;
             const isOverBudget = budget && budget.spent > budget.allocated;
+            
+            // Determine category display name
+            const categoryDisplay = isSavings 
+              ? formatSavingsCategory(transaction.category)
+              : transaction.category.charAt(0).toUpperCase() + transaction.category.slice(1);
 
             return (
               <div
@@ -151,7 +182,10 @@ const RecentTransactions: React.FC<RecentTransactionsProps> = ({ transactions, b
                     </div>
                     <div>
                       <p className="font-medium text-sm">{transaction.description}</p>
-                      <p className="text-xs text-muted-foreground">{formatDate(transaction.date)}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {formatDate(transaction.date)} 
+                        {isSavings && <span className="ml-1">• {categoryDisplay}</span>}
+                      </p>
                     </div>
                   </div>
                   <p className={cn(

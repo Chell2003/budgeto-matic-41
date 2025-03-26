@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { Transaction } from "@/components/dashboard/RecentTransactions";
 
@@ -44,6 +45,15 @@ export const addTransaction = async (transaction: {
     throw new Error('User must be logged in to add a transaction');
   }
 
+  let transactionType = 'income';
+  
+  // Determine transaction type
+  if (transaction.amount < 0) {
+    transactionType = 'expense';
+  } else if (transaction.category.startsWith('savings:') || transaction.category === 'savings') {
+    transactionType = 'savings';
+  }
+
   const { data, error } = await supabase
     .from('transactions')
     .insert({
@@ -52,8 +62,7 @@ export const addTransaction = async (transaction: {
       description: transaction.description,
       category: transaction.category,
       transaction_date: transaction.date.toISOString(),
-      transaction_type: transaction.amount < 0 ? 'expense' : 
-                       (transaction.category === 'savings' ? 'savings' : 'income')
+      transaction_type: transactionType
     })
     .select()
     .single();
@@ -192,7 +201,8 @@ export const getFinancialSummary = async () => {
   data.forEach(transaction => {
     const amount = Number(transaction.amount);
     
-    if (transaction.transaction_type === 'savings') {
+    if (transaction.transaction_type === 'savings' || 
+        (transaction.category && transaction.category.startsWith('savings:'))) {
       savings += amount;
     } else if (amount > 0) {
       income += amount;
