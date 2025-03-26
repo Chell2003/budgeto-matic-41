@@ -65,23 +65,9 @@ const Expenses = () => {
     description: string;
     category: string;
     date: Date;
-    autoSave?: boolean;
   }) => {
     try {
       await addTransaction(transaction);
-      
-      if (transaction.amount > 0 && transaction.autoSave === true) {
-        const savingsAmount = transaction.amount * 0.1;
-        
-        await addTransaction({
-          amount: savingsAmount,
-          description: `Automatic savings from ${transaction.description}`,
-          category: 'savings',
-          date: transaction.date
-        });
-        
-        toast.success(`10% of income automatically saved`);
-      }
       
       const updatedTransactions = await getTransactions();
       setTransactions(updatedTransactions);

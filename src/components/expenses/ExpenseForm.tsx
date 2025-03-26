@@ -21,7 +21,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch";
 import AmountInput from '../common/AmountInput';
 import CategorySelector, { ExpenseCategory } from './CategorySelector';
 import { incomeCategories } from '@/lib/data';
@@ -33,7 +32,6 @@ interface ExpenseFormProps {
     description: string;
     category: string;
     date: Date;
-    autoSave?: boolean;
   }) => void;
   budgets?: Budget[];
 }
@@ -49,7 +47,6 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
   const [selectedIncomeCategory, setSelectedIncomeCategory] = useState<string | null>(null);
   const [date, setDate] = useState<Date>(new Date());
   const [transactionType, setTransactionType] = useState<'expense' | 'income' | 'savings'>('expense');
-  const [autoSave, setAutoSave] = useState<boolean>(true);
   
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -84,8 +81,7 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
       amount: finalAmount,
       description,
       category,
-      date,
-      autoSave: transactionType === 'income' ? autoSave : undefined,
+      date
     });
     
     setAmount(0);
@@ -169,26 +165,12 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
           )}
           
           {transactionType === 'income' && (
-            <>
-              <CategorySelector
-                categories={incomeCategories}
-                selectedCategory={selectedIncomeCategory}
-                onSelectCategory={setSelectedIncomeCategory}
-                type="income"
-              />
-              
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium">Automatic Savings</p>
-                  <p className="text-xs text-muted-foreground">Set aside 10% to savings</p>
-                </div>
-                <Switch 
-                  checked={autoSave} 
-                  onCheckedChange={setAutoSave} 
-                  className="data-[state=checked]:bg-finance-saving"
-                />
-              </div>
-            </>
+            <CategorySelector
+              categories={incomeCategories}
+              selectedCategory={selectedIncomeCategory}
+              onSelectCategory={setSelectedIncomeCategory}
+              type="income"
+            />
           )}
           
           <div className="space-y-2">

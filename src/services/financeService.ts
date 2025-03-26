@@ -36,7 +36,6 @@ export const addTransaction = async (transaction: {
   description: string;
   category: string;
   date: Date;
-  autoSave?: boolean;
 }) => {
   // Get the current user's ID
   const { data: { user } } = await supabase.auth.getUser();
@@ -45,20 +44,16 @@ export const addTransaction = async (transaction: {
     throw new Error('User must be logged in to add a transaction');
   }
 
-  // Remove the autoSave property before sending to Supabase
-  // as it's not a column in the transactions table
-  const { autoSave, ...transactionData } = transaction;
-
   const { data, error } = await supabase
     .from('transactions')
     .insert({
       user_id: user.id,
-      amount: transactionData.amount,
-      description: transactionData.description,
-      category: transactionData.category,
-      transaction_date: transactionData.date.toISOString(),
-      transaction_type: transactionData.amount < 0 ? 'expense' : 
-                       (transactionData.category === 'savings' ? 'savings' : 'income')
+      amount: transaction.amount,
+      description: transaction.description,
+      category: transaction.category,
+      transaction_date: transaction.date.toISOString(),
+      transaction_type: transaction.amount < 0 ? 'expense' : 
+                       (transaction.category === 'savings' ? 'savings' : 'income')
     })
     .select()
     .single();
