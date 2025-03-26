@@ -67,9 +67,23 @@ const Expenses = () => {
     description: string;
     category: string;
     date: Date;
+    autoSave?: boolean;
   }) => {
     try {
       await addTransaction(transaction);
+      
+      // If this is income and autoSave is enabled, also add a savings transaction
+      if (transaction.amount > 0 && transaction.autoSave) {
+        const savingsAmount = transaction.amount * 0.1; // 10% of income
+        
+        await addTransaction({
+          amount: savingsAmount,
+          description: `Automatic savings from ${transaction.description}`,
+          category: 'savings',
+          date: transaction.date
+        });
+      }
+      
       // Refresh transactions after adding
       const updatedTransactions = await getTransactions();
       setTransactions(updatedTransactions);
@@ -83,6 +97,11 @@ const Expenses = () => {
         : 'Expense';
       
       toast.success(`${transactionType} added successfully`);
+      
+      // Show an additional toast for automatic savings
+      if (transaction.amount > 0 && transaction.autoSave) {
+        toast.success(`10% of income automatically saved`);
+      }
     } catch (error) {
       console.error('Error adding transaction:', error);
       toast.error('Failed to add transaction');
