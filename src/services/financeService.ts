@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { Transaction } from "@/components/dashboard/RecentTransactions";
 
@@ -193,10 +192,14 @@ export const getFinancialSummary = async () => {
   
   let income = 0;
   let expenses = 0;
+  let savings = 0;
   
   data.forEach(transaction => {
     const amount = Number(transaction.amount);
-    if (amount > 0) {
+    
+    if (transaction.transaction_type === 'savings') {
+      savings += amount;
+    } else if (amount > 0) {
       income += amount;
     } else {
       expenses += Math.abs(amount);
@@ -204,7 +207,6 @@ export const getFinancialSummary = async () => {
   });
   
   const balance = income - expenses;
-  const savings = income * 0.1; // Assuming 10% of income is saved
   
   return {
     balance,
