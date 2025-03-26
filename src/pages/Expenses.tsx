@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import MobileLayout from '@/components/layout/MobileLayout';
 import ExpenseForm from '@/components/expenses/ExpenseForm';
@@ -39,11 +38,10 @@ const Expenses = () => {
         const budgetData = await getBudgets();
         setBudgets(budgetData);
         
-        // Create expense categories from budget categories
         const categories = budgetData.map(budget => ({
           id: budget.id,
           name: budget.category,
-          icon: 'shoppingBag', // Default icon
+          icon: 'shoppingBag',
           color: budget.color || 'gray'
         }));
         
@@ -72,9 +70,8 @@ const Expenses = () => {
     try {
       await addTransaction(transaction);
       
-      // If this is income and autoSave is enabled, also add a savings transaction
-      if (transaction.amount > 0 && transaction.autoSave) {
-        const savingsAmount = transaction.amount * 0.1; // 10% of income
+      if (transaction.amount > 0 && transaction.autoSave === true) {
+        const savingsAmount = transaction.amount * 0.1;
         
         await addTransaction({
           amount: savingsAmount,
@@ -82,13 +79,13 @@ const Expenses = () => {
           category: 'savings',
           date: transaction.date
         });
+        
+        toast.success(`10% of income automatically saved`);
       }
       
-      // Refresh transactions after adding
       const updatedTransactions = await getTransactions();
       setTransactions(updatedTransactions);
       
-      // Also refresh budgets as they're linked to transactions
       const updatedBudgets = await getBudgets();
       setBudgets(updatedBudgets);
       
@@ -97,11 +94,6 @@ const Expenses = () => {
         : 'Expense';
       
       toast.success(`${transactionType} added successfully`);
-      
-      // Show an additional toast for automatic savings
-      if (transaction.amount > 0 && transaction.autoSave) {
-        toast.success(`10% of income automatically saved`);
-      }
     } catch (error) {
       console.error('Error adding transaction:', error);
       toast.error('Failed to add transaction');
@@ -117,7 +109,6 @@ const Expenses = () => {
     }).format(amount);
   };
 
-  // Find the related budget for a category
   const findBudgetForCategory = (category: string) => {
     return budgets.find(b => b.category.toLowerCase() === category.toLowerCase());
   };
