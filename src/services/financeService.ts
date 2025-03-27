@@ -49,15 +49,19 @@ export const addTransaction = async (transaction: {
   let transactionType;
   let finalAmount = transaction.amount;
   
-  if (transaction.category.startsWith('savings:') || transaction.category === 'savings') {
-    transactionType = 'savings';
-    // Ensure savings amount is positive
-    finalAmount = Math.abs(transaction.amount);
+  if (transaction.category.startsWith('savings:')) {
+    // For savings, we need to handle it as 'expense' type in database
+    // This is because the database constraint only allows 'income' or 'expense'
+    transactionType = 'expense';
+    // Ensure savings amount is positive in display but stored as negative
+    finalAmount = -Math.abs(transaction.amount);
   } else if (transaction.amount < 0) {
     transactionType = 'expense';
   } else {
     transactionType = 'income';
   }
+
+  console.log('Adding transaction with type:', transactionType, 'amount:', finalAmount, 'category:', transaction.category);
 
   const { data, error } = await supabase
     .from('transactions')
@@ -206,11 +210,12 @@ export const getFinancialSummary = async () => {
   data.forEach(transaction => {
     const amount = Number(transaction.amount);
     
-    if (transaction.transaction_type === 'savings') {
+    if (transaction.category.startsWith('savings:')) {
+      // Identify savings by category prefix
       savings += Math.abs(amount);
     } else if (transaction.transaction_type === 'income') {
       income += Math.abs(amount);
-    } else if (transaction.transaction_type === 'expense') {
+    } else if (transaction.transaction_type === 'expense' && !transaction.category.startsWith('savings:')) {
       expenses += Math.abs(amount);
     }
   });

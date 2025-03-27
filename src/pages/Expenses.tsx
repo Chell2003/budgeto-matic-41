@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import MobileLayout from '@/components/layout/MobileLayout';
 import ExpenseForm from '@/components/expenses/ExpenseForm';
@@ -67,6 +68,8 @@ const Expenses = () => {
     date: Date;
   }) => {
     try {
+      console.log('About to add transaction:', transaction);
+      
       await addTransaction(transaction);
       
       const updatedTransactions = await getTransactions();
@@ -75,9 +78,12 @@ const Expenses = () => {
       const updatedBudgets = await getBudgets();
       setBudgets(updatedBudgets);
       
-      const transactionType = transaction.amount > 0 
-        ? transaction.category === 'savings' ? 'Savings' : 'Income' 
-        : 'Expense';
+      let transactionType = 'Expense';
+      if (transaction.category.startsWith('savings:')) {
+        transactionType = 'Savings';
+      } else if (transaction.amount > 0) {
+        transactionType = 'Income';
+      }
       
       toast.success(`${transactionType} added successfully`);
     } catch (error) {
