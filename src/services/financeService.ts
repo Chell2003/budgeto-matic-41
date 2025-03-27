@@ -45,20 +45,25 @@ export const addTransaction = async (transaction: {
     throw new Error('User must be logged in to add a transaction');
   }
 
-  let transactionType = 'income';
+  // Determine transaction type based on category and amount
+  let transactionType;
+  let finalAmount = transaction.amount;
   
-  // Determine transaction type
-  if (transaction.amount < 0) {
-    transactionType = 'expense';
-  } else if (transaction.category.startsWith('savings:') || transaction.category === 'savings') {
+  if (transaction.category.startsWith('savings:') || transaction.category === 'savings') {
     transactionType = 'savings';
+    // Ensure savings amount is positive
+    finalAmount = Math.abs(transaction.amount);
+  } else if (transaction.amount < 0) {
+    transactionType = 'expense';
+  } else {
+    transactionType = 'income';
   }
 
   const { data, error } = await supabase
     .from('transactions')
     .insert({
       user_id: user.id,
-      amount: transaction.amount,
+      amount: finalAmount,
       description: transaction.description,
       category: transaction.category,
       transaction_date: transaction.date.toISOString(),
@@ -201,12 +206,11 @@ export const getFinancialSummary = async () => {
   data.forEach(transaction => {
     const amount = Number(transaction.amount);
     
-    if (transaction.transaction_type === 'savings' || 
-        (transaction.category && transaction.category.startsWith('savings:'))) {
-      savings += amount;
-    } else if (amount > 0) {
-      income += amount;
-    } else {
+    if (transaction.transaction_type === 'savings') {
+      savings += Math.abs(amount);
+    } else if (transaction.transaction_type === 'income') {
+      income += Math.abs(amount);
+    } else if (transaction.transaction_type === 'expense') {
       expenses += Math.abs(amount);
     }
   });
