@@ -4,7 +4,8 @@ import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
 
 export type BudgetCategory = {
   id: string;
-  name: string;
+  name?: string;
+  category?: string;
   allocated: number;
   spent: number;
   color: string;
@@ -23,8 +24,10 @@ const categoryColorHex: Record<string, string> = {
   coffee: '#f59e0b',   // amber
   transport: '#3b82f6', // blue
   housing: '#0d9488',   // teal
+  rent: '#0d9488',      // same as housing
   utilities: '#3b82f6', // blue
   entertainment: '#ec4899', // pink
+  groceries: '#f97316',     // same as food
   healthcare: '#22c55e',    // green
   education: '#6366f1',     // indigo
   "personal care": '#8b5cf6', // violet
@@ -40,13 +43,15 @@ const BudgetChart: React.FC<BudgetChartProps> = ({
   totalSpent
 }) => {
   const data = budgetCategories.map((category) => {
+    // Get the category name, handling both possible properties
+    const categoryName = category.category || category.name || '';
     // Convert category name to lowercase for consistent mapping
-    const categoryKey = category.name.toLowerCase();
+    const categoryKey = categoryName.toLowerCase();
     // Use the color from our map, or fall back to the category's color or a default
     const colorHex = categoryColorHex[categoryKey] || category.color || '#64748b';
     
     return {
-      name: category.name,
+      name: categoryName,
       value: category.allocated,
       color: colorHex,
     };
