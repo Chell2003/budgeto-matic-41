@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { Transaction } from "@/components/dashboard/RecentTransactions";
 
@@ -9,6 +8,18 @@ export interface Budget {
   spent: number;
   color: string;
 }
+
+// Map of category to color for consistent styling
+const categoryColors: Record<string, string> = {
+  shopping: 'purple',
+  food: 'orange',
+  coffee: 'amber',
+  transport: 'blue',
+  housing: 'teal',
+  gifts: 'pink',
+  bills: 'gray',
+  other: 'slate',
+};
 
 // Transactions
 export const getTransactions = async () => {
@@ -37,14 +48,12 @@ export const addTransaction = async (transaction: {
   category: string;
   date: Date;
 }) => {
-  // Get the current user's ID
   const { data: { user } } = await supabase.auth.getUser();
   
   if (!user) {
     throw new Error('User must be logged in to add a transaction');
   }
 
-  // Normalize category for consistent matching
   const normalizedCategory = transaction.category.trim().toLowerCase();
 
   let transactionType;
@@ -125,29 +134,13 @@ export const getBudgets = async () => {
   const spendingByCategory: Record<string, number> = {};
   
   transactions.forEach(transaction => {
-    // Normalize category for consistent matching
     const category = transaction.category.trim().toLowerCase();
     const amount = Math.abs(Number(transaction.amount));
     
     spendingByCategory[category] = (spendingByCategory[category] || 0) + amount;
   });
 
-  // Default colors for categories
   console.log('Spending by Category:', spendingByCategory);
-
-  // Default colors for categories
-  const categoryColors: Record<string, string> = {
-    shopping: 'purple',
-    food: 'orange',
-    transport: 'blue',
-    housing: 'teal',
-    entertainment: 'pink',
-    utilities: 'gray',
-    health: 'red',
-    education: 'yellow',
-    subscription: 'indigo',
-    other: 'slate'
-  };
 
   // Map budgets with spending
   return budgets.map(budget => {
@@ -167,10 +160,9 @@ export const addBudget = async (budget: {
   allocated: number;
 }) => {
   const currentDate = new Date();
-  const currentMonth = currentDate.getMonth() + 1; // 1-12
+  const currentMonth = currentDate.getMonth() + 1;
   const currentYear = currentDate.getFullYear();
 
-  // Get the current user's ID
   const { data: { user } } = await supabase.auth.getUser();
   
   if (!user) {
@@ -202,7 +194,6 @@ export const getFinancialSummary = async () => {
   const currentDate = new Date();
   const startOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1).toISOString();
   
-  // Get all transactions for the current month
   const { data, error } = await supabase
     .from('transactions')
     .select('*')
@@ -221,7 +212,6 @@ export const getFinancialSummary = async () => {
     const amount = Number(transaction.amount);
     
     if (transaction.category.startsWith('savings:')) {
-      // Identify savings by category prefix
       savings += Math.abs(amount);
     } else if (transaction.transaction_type === 'income') {
       income += Math.abs(amount);

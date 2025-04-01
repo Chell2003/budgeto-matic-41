@@ -16,6 +16,7 @@ const Budget = () => {
     try {
       setIsLoading(true);
       const data = await getBudgets();
+      console.log('Fetched budget data:', data); // Log the budget data
       setBudgetCategories(data);
     } catch (error) {
       console.error('Error fetching budgets:', error);
