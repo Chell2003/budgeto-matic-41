@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { 
   Dialog,
@@ -17,7 +16,13 @@ import {
   FormLabel, 
   FormMessage 
 } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
+import { 
+  Select, 
+  SelectContent, 
+  SelectItem, 
+  SelectTrigger, 
+  SelectValue 
+} from "@/components/ui/select";
 import { toast } from 'sonner';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -25,8 +30,25 @@ import * as z from 'zod';
 import AmountInput from '@/components/common/AmountInput';
 import { addBudget } from '@/services/financeService';
 
+// Predefined budget categories
+const BUDGET_CATEGORIES = [
+  'Food', 
+  'Transport', 
+  'Rent', 
+  'Utilities', 
+  'Entertainment', 
+  'Groceries', 
+  'Healthcare', 
+  'Education', 
+  'Personal Care', 
+  'Miscellaneous'
+  
+];
+
 const budgetFormSchema = z.object({
-  category: z.string().min(1, 'Category is required'),
+  category: z.enum(BUDGET_CATEGORIES as [string, ...string[]], {
+    errorMap: () => ({ message: 'Please select a category' })
+  }),
   allocated: z.number().min(1, 'Amount must be greater than 0'),
 });
 
@@ -43,7 +65,7 @@ const CreateBudgetDialog: React.FC<CreateBudgetDialogProps> = ({ onBudgetCreated
   const form = useForm<BudgetFormValues>({
     resolver: zodResolver(budgetFormSchema),
     defaultValues: {
-      category: '',
+      category: undefined,
       allocated: 0,
     },
   });
@@ -89,7 +111,21 @@ const CreateBudgetDialog: React.FC<CreateBudgetDialogProps> = ({ onBudgetCreated
                 <FormItem>
                   <FormLabel>Category</FormLabel>
                   <FormControl>
-                    <Input placeholder="e.g., Food, Transport, Rent" {...field} />
+                    <Select 
+                      onValueChange={field.onChange} 
+                      value={field.value}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a category" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {BUDGET_CATEGORIES.map((category) => (
+                          <SelectItem key={category} value={category}>
+                            {category}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </FormControl>
                   <FormMessage />
                 </FormItem>

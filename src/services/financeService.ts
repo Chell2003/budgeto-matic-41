@@ -22,7 +22,6 @@ export const getTransactions = async () => {
     throw error;
   }
   
-  // Format transactions to match the expected format
   return data.map(transaction => ({
     id: transaction.id,
     description: transaction.description,
@@ -45,15 +44,14 @@ export const addTransaction = async (transaction: {
     throw new Error('User must be logged in to add a transaction');
   }
 
-  // Determine transaction type based on category and amount
+  // Normalize category for consistent matching
+  const normalizedCategory = transaction.category.trim().toLowerCase();
+
   let transactionType;
   let finalAmount = transaction.amount;
   
-  if (transaction.category.startsWith('savings:')) {
-    // For savings, we need to handle it as 'expense' type in database
-    // This is because the database constraint only allows 'income' or 'expense'
+  if (normalizedCategory.startsWith('savings:')) {
     transactionType = 'expense';
-    // Ensure savings amount is positive in display but stored as negative
     finalAmount = -Math.abs(transaction.amount);
   } else if (transaction.amount < 0) {
     transactionType = 'expense';
@@ -61,7 +59,11 @@ export const addTransaction = async (transaction: {
     transactionType = 'income';
   }
 
-  console.log('Adding transaction with type:', transactionType, 'amount:', finalAmount, 'category:', transaction.category);
+  console.log('Adding transaction:', {
+    category: normalizedCategory,
+    amount: finalAmount,
+    type: transactionType
+  });
 
   const { data, error } = await supabase
     .from('transactions')
@@ -69,7 +71,7 @@ export const addTransaction = async (transaction: {
       user_id: user.id,
       amount: finalAmount,
       description: transaction.description,
-      category: transaction.category,
+      category: normalizedCategory,
       transaction_date: transaction.date.toISOString(),
       transaction_type: transactionType
     })
@@ -87,7 +89,7 @@ export const addTransaction = async (transaction: {
 // Budgets
 export const getBudgets = async () => {
   const currentDate = new Date();
-  const currentMonth = currentDate.getMonth() + 1; // 1-12
+  const currentMonth = currentDate.getMonth() + 1;
   const currentYear = currentDate.getFullYear();
 
   // Fetch budgets for current month/year
@@ -118,15 +120,20 @@ export const getBudgets = async () => {
     throw transactionsError;
   }
 
+
   // Calculate spending by category
   const spendingByCategory: Record<string, number> = {};
   
   transactions.forEach(transaction => {
-    const category = transaction.category;
+    // Normalize category for consistent matching
+    const category = transaction.category.trim().toLowerCase();
     const amount = Math.abs(Number(transaction.amount));
     
     spendingByCategory[category] = (spendingByCategory[category] || 0) + amount;
   });
+
+  // Default colors for categories
+  console.log('Spending by Category:', spendingByCategory);
 
   // Default colors for categories
   const categoryColors: Record<string, string> = {
@@ -143,13 +150,16 @@ export const getBudgets = async () => {
   };
 
   // Map budgets with spending
-  return budgets.map(budget => ({
-    id: budget.id,
-    category: budget.category,
-    allocated: Number(budget.allocated),
-    spent: spendingByCategory[budget.category] || 0,
-    color: categoryColors[budget.category.toLowerCase()] || 'gray'
-  })) as Budget[];
+  return budgets.map(budget => {
+    const normalizedBudgetCategory = budget.category.trim().toLowerCase();
+    return {
+      id: budget.id,
+      category: budget.category,
+      allocated: Number(budget.allocated),
+      spent: spendingByCategory[normalizedBudgetCategory] || 0,
+      color: categoryColors[normalizedBudgetCategory] || 'gray'
+    };
+  }) as Budget[];
 };
 
 export const addBudget = async (budget: {

@@ -172,13 +172,6 @@ const Settings = () => {
                 description="Manage your personal information"
               />
             </CardContent>
-            <CardContent className="p-4 pb-0">
-              <SettingsItem 
-                icon={CreditCard} 
-                label="Payment Methods" 
-                description="Manage your payment options"
-              />
-            </CardContent>
             <CardContent className="p-4">
               <SettingsItem 
                 icon={Lock} 

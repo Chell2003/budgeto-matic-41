@@ -63,10 +63,6 @@ const FinanceSummary: React.FC<FinanceSummaryProps> = ({
                 {formatCurrency(balance)}
               </h2>
             </div>
-            <div className="flex items-center text-xs font-medium text-finance-income">
-              <TrendingUp size={14} className="mr-1" />
-              <span>+2.4%</span>
-            </div>
           </div>
 
           <div className="grid grid-cols-3 gap-3">

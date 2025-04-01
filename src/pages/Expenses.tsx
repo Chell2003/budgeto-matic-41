@@ -68,14 +68,33 @@ const Expenses = () => {
     date: Date;
   }) => {
     try {
-      console.log('About to add transaction:', transaction);
-      
+      // Add these console.log statements
+      console.log('Transaction Details:', {
+        amount: transaction.amount,
+        description: transaction.description,
+        category: transaction.category,
+        date: transaction.date
+      });
+  
+      console.log('Current Budgets BEFORE Transaction:', budgets);
+  
       await addTransaction(transaction);
       
       const updatedTransactions = await getTransactions();
-      setTransactions(updatedTransactions);
-      
       const updatedBudgets = await getBudgets();
+  
+      console.log('Updated Budgets AFTER Transaction:', updatedBudgets);
+  
+      // Optional: Find and log the matching budget
+      const matchingBudget = updatedBudgets.find(
+        budget => budget.category.toLowerCase() === transaction.category.toLowerCase()
+      );
+      
+      console.log('Matching Budget:', matchingBudget);
+      console.log('Budget Spent Amount:', matchingBudget?.spent);
+      console.log('Budget Allocated Amount:', matchingBudget?.allocated);
+  
+      setTransactions(updatedTransactions);
       setBudgets(updatedBudgets);
       
       let transactionType = 'Expense';
