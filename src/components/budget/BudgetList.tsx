@@ -17,29 +17,40 @@ interface BudgetListProps {
   onBudgetCreated?: () => void;
 }
 
-// Map of category to icon
+// Map of category to icon - ensuring consistency with CategorySelector
 const categoryIcons: Record<string, React.ElementType> = {
-  // Expense categories
   shopping: ShoppingBag,
   food: Utensils,
   coffee: Coffee,
   transport: Car,
   housing: Home,
-  gifts: Gift,
+  utilities: Home,
+  entertainment: Smartphone,
+  healthcare: Shield,
+  education: Briefcase,
+  "personal care": UserCheck,
   bills: CreditCard,
+  gifts: Gift,
   other: Plus,
+  miscellaneous: Plus
 };
 
-// Map of category to background color
+// Map of category to background color - ensuring consistency with CategorySelector
 const categoryColors: Record<string, string> = {
   shopping: 'bg-purple-100',
   food: 'bg-orange-100',
   coffee: 'bg-amber-100',
   transport: 'bg-blue-100',
   housing: 'bg-teal-100',
-  gifts: 'bg-pink-100',
+  utilities: 'bg-blue-100',
+  entertainment: 'bg-pink-100',
+  healthcare: 'bg-green-100',
+  education: 'bg-indigo-100',
+  "personal care": 'bg-violet-100',
   bills: 'bg-gray-100',
+  gifts: 'bg-pink-100',
   other: 'bg-slate-100',
+  miscellaneous: 'bg-slate-100'
 };
 
 const BudgetList: React.FC<BudgetListProps> = ({ 

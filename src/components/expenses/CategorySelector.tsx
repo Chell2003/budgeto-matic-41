@@ -55,9 +55,15 @@ const iconMap: Record<string, React.ElementType> = {
   food: Utensils,
   transport: Car,
   housing: Home,
-  gifts: Gift,
+  utilities: Home,
+  entertainment: Smartphone,
+  healthcare: Shield,
+  education: Briefcase,
+  "personal care": UserCheck,
   bills: CreditCard,
-  other: Plus
+  gifts: Gift,
+  other: Plus,
+  miscellaneous: Plus
 };
 
 // Map of category to background color - ensuring consistency with BudgetList
@@ -67,9 +73,15 @@ const categoryColors: Record<string, string> = {
   coffee: 'amber',
   transport: 'blue',
   housing: 'teal',
-  gifts: 'pink',
+  utilities: 'blue',
+  entertainment: 'pink',
+  healthcare: 'green',
+  education: 'indigo',
+  "personal care": 'violet',
   bills: 'gray',
-  other: 'slate'
+  gifts: 'pink',
+  other: 'slate',
+  miscellaneous: 'slate'
 };
 
 const CategorySelector: React.FC<CategorySelectorProps> = ({

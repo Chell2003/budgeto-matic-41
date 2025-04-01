@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { 
   Dialog,
@@ -30,19 +31,21 @@ import * as z from 'zod';
 import AmountInput from '@/components/common/AmountInput';
 import { addBudget } from '@/services/financeService';
 
-// Predefined budget categories
+// Predefined budget categories - aligned with expense categories
 const BUDGET_CATEGORIES = [
   'Food', 
   'Transport', 
-  'Rent', 
+  'Housing', 
   'Utilities', 
   'Entertainment', 
-  'Groceries', 
+  'Shopping', 
   'Healthcare', 
   'Education', 
   'Personal Care', 
-  'Miscellaneous'
-  
+  'Bills',
+  'Gifts',
+  'Coffee',
+  'Other'
 ];
 
 const budgetFormSchema = z.object({
@@ -115,10 +118,10 @@ const CreateBudgetDialog: React.FC<CreateBudgetDialogProps> = ({ onBudgetCreated
                       onValueChange={field.onChange} 
                       value={field.value}
                     >
-                      <SelectTrigger>
+                      <SelectTrigger className="bg-white">
                         <SelectValue placeholder="Select a category" />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className="bg-white">
                         {BUDGET_CATEGORIES.map((category) => (
                           <SelectItem key={category} value={category}>
                             {category}
