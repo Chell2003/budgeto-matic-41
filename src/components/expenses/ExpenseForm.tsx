@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import { Budget } from '@/services/financeService';
@@ -63,29 +62,30 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
     }
     
     let category = '';
-    // We'll just pass the direct amount through to the service
-    // The service will handle adjusting the amount based on type
+    let finalAmount = amount;
     
     if (transactionType === 'expense') {
       const budgetCategory = budgets.find(b => b.id === selectedCategory);
       category = budgetCategory ? budgetCategory.category.toLowerCase() : '';
+      finalAmount = -Math.abs(amount);
     } else if (transactionType === 'income') {
       const incomeCategory = incomeCategories.find(cat => cat.id === selectedIncomeCategory);
       category = incomeCategory ? incomeCategory.name.toLowerCase() : 'income';
+      finalAmount = Math.abs(amount);
     } else {
-      // For savings, we include the savings type in the category
       category = `savings:${savingsType}`;
+      finalAmount = Math.abs(amount);
     }
     
     console.log(`Submitting ${transactionType} transaction:`, { 
-      amount, 
+      amount: finalAmount, 
       description, 
       category, 
       date 
     });
     
     onAddExpense({
-      amount,
+      amount: finalAmount,
       description,
       category,
       date

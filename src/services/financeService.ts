@@ -67,8 +67,8 @@ export const addTransaction = async (transaction: {
   let finalAmount = transaction.amount;
   
   if (normalizedCategory.startsWith('savings:')) {
-    transactionType = 'expense';
-    finalAmount = -Math.abs(transaction.amount);
+    transactionType = 'savings';
+    finalAmount = Math.abs(transaction.amount);
   } else if (transaction.amount < 0) {
     transactionType = 'expense';
   } else {
@@ -218,11 +218,11 @@ export const getFinancialSummary = async () => {
   data.forEach(transaction => {
     const amount = Number(transaction.amount);
     
-    if (transaction.category.startsWith('savings:')) {
-      savings += Math.abs(amount);
+    if (transaction.transaction_type === 'savings') {
+      savings += amount;
     } else if (transaction.transaction_type === 'income') {
-      income += Math.abs(amount);
-    } else if (transaction.transaction_type === 'expense' && !transaction.category.startsWith('savings:')) {
+      income += amount;
+    } else if (transaction.transaction_type === 'expense') {
       expenses += Math.abs(amount);
     }
   });
