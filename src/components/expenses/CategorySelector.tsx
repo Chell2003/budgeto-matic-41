@@ -29,7 +29,7 @@ interface CategorySelectorProps {
   type?: 'expense' | 'income' | 'savings';
 }
 
-// Map of icon names to icon components
+// Map of icon names to icon components - making this consistent with BudgetList
 const iconMap: Record<string, React.ElementType> = {
   shoppingBag: ShoppingBag,
   coffee: Coffee,
@@ -49,7 +49,27 @@ const iconMap: Record<string, React.ElementType> = {
   shieldCheck: ShieldCheck,
   userCheck: UserCheck,
   send: Send,
-  helpCircle: HelpCircle
+  helpCircle: HelpCircle,
+  // Ensure all icons from BudgetList are included here
+  shopping: ShoppingBag,
+  food: Utensils,
+  transport: Car,
+  housing: Home,
+  gifts: Gift,
+  bills: CreditCard,
+  other: Plus
+};
+
+// Map of category to background color - ensuring consistency with BudgetList
+const categoryColors: Record<string, string> = {
+  shopping: 'purple',
+  food: 'orange',
+  coffee: 'amber',
+  transport: 'blue',
+  housing: 'teal',
+  gifts: 'pink',
+  bills: 'gray',
+  other: 'slate'
 };
 
 const CategorySelector: React.FC<CategorySelectorProps> = ({
@@ -67,12 +87,16 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({
         value={selectedCategory || undefined}
         onValueChange={onSelectCategory}
       >
-        <SelectTrigger className="w-full">
+        <SelectTrigger className="w-full bg-white">
           <SelectValue placeholder={`Choose a ${type === 'income' ? 'source' : 'category'}`} />
         </SelectTrigger>
-        <SelectContent>
+        <SelectContent className="bg-white">
           {categories.map((category) => {
-            const Icon = iconMap[category.icon] || ShoppingBag;
+            // Use iconMap to find the appropriate icon, defaulting to the category's icon or ShoppingBag
+            const Icon = iconMap[category.icon] || iconMap[category.name.toLowerCase()] || ShoppingBag;
+            
+            // Get the color from categoryColors if available, or use the category's color
+            const colorName = categoryColors[category.name.toLowerCase()] || category.color || 'gray';
             
             return (
               <SelectItem 
@@ -83,9 +107,9 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({
                 <div className="flex items-center gap-2">
                   <div className={cn(
                     "w-6 h-6 rounded-full flex items-center justify-center",
-                    `bg-${category.color}-100`
+                    `bg-${colorName}-100`
                   )}>
-                    <Icon size={14} className={`text-${category.color}-600`} />
+                    <Icon size={14} className={`text-${colorName}-600`} />
                   </div>
                   <span>{category.name}</span>
                 </div>

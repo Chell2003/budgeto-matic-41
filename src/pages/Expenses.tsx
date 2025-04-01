@@ -39,13 +39,20 @@ const Expenses = () => {
         const budgetData = await getBudgets();
         setBudgets(budgetData);
         
-        const categories = budgetData.map(budget => ({
-          id: budget.id,
-          name: budget.category,
-          icon: 'shoppingBag',
-          color: budget.color || 'gray'
-        }));
+        // Use a consistent mapping from budgets to expense categories
+        // This ensures icons and colors match between budget and expense pages
+        const categories = budgetData.map(budget => {
+          const categoryKey = budget.category.toLowerCase();
+          
+          return {
+            id: budget.id,
+            name: budget.category,
+            icon: categoryKey, // Use the category key as the icon identifier
+            color: budget.color
+          };
+        });
         
+        console.log('Mapped expense categories:', categories);
         setBudgetCategories(categories);
       } catch (error) {
         console.error('Error fetching budgets:', error);
