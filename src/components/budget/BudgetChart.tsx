@@ -16,16 +16,41 @@ interface BudgetChartProps {
   totalSpent: number;
 }
 
+// Map of category to color hex values - ensuring consistency with CategorySelector
+const categoryColorHex: Record<string, string> = {
+  shopping: '#9b87f5', // purple
+  food: '#f97316',     // orange
+  coffee: '#f59e0b',   // amber
+  transport: '#3b82f6', // blue
+  housing: '#0d9488',   // teal
+  utilities: '#3b82f6', // blue
+  entertainment: '#ec4899', // pink
+  healthcare: '#22c55e',    // green
+  education: '#6366f1',     // indigo
+  "personal care": '#8b5cf6', // violet
+  bills: '#6b7280',          // gray
+  gifts: '#ec4899',          // pink
+  other: '#64748b',          // slate
+  miscellaneous: '#64748b'   // slate
+};
+
 const BudgetChart: React.FC<BudgetChartProps> = ({ 
   budgetCategories, 
   totalBudget,
   totalSpent
 }) => {
-  const data = budgetCategories.map((category) => ({
-    name: category.name,
-    value: category.allocated,
-    color: category.color,
-  }));
+  const data = budgetCategories.map((category) => {
+    // Convert category name to lowercase for consistent mapping
+    const categoryKey = category.name.toLowerCase();
+    // Use the color from our map, or fall back to the category's color or a default
+    const colorHex = categoryColorHex[categoryKey] || category.color || '#64748b';
+    
+    return {
+      name: category.name,
+      value: category.allocated,
+      color: colorHex,
+    };
+  });
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
