@@ -11,14 +11,21 @@ export interface Budget {
 
 // Map of category to color for consistent styling
 const categoryColors: Record<string, string> = {
-  shopping: 'purple',
-  food: 'orange',
-  coffee: 'amber',
-  transport: 'blue',
-  housing: 'teal',
-  gifts: 'pink',
-  bills: 'gray',
-  other: 'slate',
+  shopping: 'bg-purple-100',
+  food: 'bg-orange-100',
+  coffee: 'bg-amber-100',
+  transport: 'bg-blue-100',
+  housing: 'bg-teal-100',
+  rent: 'bg-cornflower-blue-100',
+  utilities: 'bg-blue-100',
+  entertainment: 'bg-pink-100',
+  healthcare: 'bg-green-100',
+  education: 'bg-indigo-100',
+  "personal care": 'bg-violet-100',
+  bills: 'bg-gray-100',
+  gifts: 'bg-pink-100',
+  other: 'bg-slate-100',
+  miscellaneous: 'bg-coral-100'
 };
 
 // Transactions

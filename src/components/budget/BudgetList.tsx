@@ -42,6 +42,7 @@ const categoryColors: Record<string, string> = {
   coffee: 'bg-amber-100',
   transport: 'bg-blue-100',
   housing: 'bg-teal-100',
+  rent: 'bg-cornflower-blue-100',
   utilities: 'bg-blue-100',
   entertainment: 'bg-pink-100',
   healthcare: 'bg-green-100',
@@ -50,7 +51,7 @@ const categoryColors: Record<string, string> = {
   bills: 'bg-gray-100',
   gifts: 'bg-pink-100',
   other: 'bg-slate-100',
-  miscellaneous: 'bg-slate-100'
+  miscellaneous: 'bg-coral-100'
 };
 
 const BudgetList: React.FC<BudgetListProps> = ({ 

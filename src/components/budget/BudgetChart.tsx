@@ -19,22 +19,22 @@ interface BudgetChartProps {
 
 // Map of category to color hex values - ensuring consistency with CategorySelector
 const categoryColorHex: Record<string, string> = {
-  shopping: '#9b87f5', // purple
-  food: '#f97316',     // orange
-  coffee: '#f59e0b',   // amber
-  transport: '#3b82f6', // blue
-  housing: '#0d9488',   // teal
-  rent: '#0d9488',      // same as housing
-  utilities: '#3b82f6', // blue
-  entertainment: '#ec4899', // pink
-  groceries: '#f97316',     // same as food
-  healthcare: '#22c55e',    // green
-  education: '#6366f1',     // indigo
-  "personal care": '#8b5cf6', // violet
-  bills: '#6b7280',          // gray
-  gifts: '#ec4899',          // pink
-  other: '#64748b',          // slate
-  miscellaneous: '#64748b'   // slate
+  shopping: '#e0bbf5', // lavender
+  food: '#ffb347',     // apricot
+  coffee: '#d2691e',   // chocolate
+  transport: '#1e90ff', // dodger blue
+  housing: '#20b2aa',   // light sea green
+  rent: '#6495ed',      // cornflower blue
+  utilities: '#4682b4', // steel blue
+  entertainment: '#ff69b4', // hot pink
+  groceries: '#ffcc00',     // carrot orange
+  healthcare: '#98fb98',    // pale green
+  education: '#8a2be2',     // blue violet
+  "personal care": '#dda0dd', // plum
+  bills: '#b0c4de',          // light steel blue
+  gifts: '#ff69b4',          // hot pink
+  other: '#708090',          // slate gray
+  miscellaneous: '#ff7f50'   // coral
 };
 
 const BudgetChart: React.FC<BudgetChartProps> = ({ 
