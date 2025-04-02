@@ -330,10 +330,25 @@ export const addSavingsGoal = async (goal: {
 };
 
 export const updateSavingsGoalAmount = async (goalId: string, amount: number) => {
+  // First get the current amount
+  const { data: currentGoal, error: fetchError } = await supabase
+    .from('savings_goals')
+    .select('current_amount')
+    .eq('id', goalId)
+    .single();
+
+  if (fetchError) {
+    console.error('Error fetching current savings goal amount:', fetchError);
+    throw fetchError;
+  }
+
+  const newAmount = Number(currentGoal.current_amount) + amount;
+
+  // Then update with the new amount
   const { data, error } = await supabase
     .from('savings_goals')
     .update({ 
-      current_amount: supabase.rpc('increment_savings_goal', { goal_id: goalId, amount }),
+      current_amount: newAmount,
       updated_at: new Date().toISOString()
     })
     .eq('id', goalId)
