@@ -218,12 +218,16 @@ export const getFinancialSummary = async () => {
   data.forEach(transaction => {
     const amount = Number(transaction.amount);
     
-    if (transaction.transaction_type === 'savings') {
-      savings += amount;
-    } else if (transaction.transaction_type === 'income') {
-      income += amount;
-    } else if (transaction.transaction_type === 'expense') {
-      expenses += Math.abs(amount);
+    switch (transaction.transaction_type) {
+      case 'savings':
+        savings += amount;
+        break;
+      case 'income':
+        income += amount;
+        break;
+      case 'expense':
+        expenses += Math.abs(amount);
+        break;
     }
   });
   

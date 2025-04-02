@@ -1,18 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { Budget } from '@/services/financeService';
-import { getBudgets } from '@/services/financeService';
-import { CalendarIcon, PiggyBank } from 'lucide-react';
-import { format } from 'date-fns';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { 
-  Popover,
-  PopoverContent,
-  PopoverTrigger 
-} from '@/components/ui/popover';
-import { Calendar } from '@/components/ui/calendar';
 import { 
   Select,
   SelectContent,
@@ -20,9 +8,21 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import AmountInput from '../common/AmountInput';
-import CategorySelector, { ExpenseCategory } from './CategorySelector';
+import { PiggyBank } from 'lucide-react';
 import { incomeCategories } from '@/lib/data';
+import CategorySelector, { ExpenseCategory } from './CategorySelector';
+import AmountInput from '../common/AmountInput';
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Calendar } from '@/components/ui/calendar';
+import { 
+  Popover,
+  PopoverContent,
+  PopoverTrigger 
+} from '@/components/ui/popover';
+import { CalendarIcon } from 'lucide-react';
+import { format } from 'date-fns';
 
 interface ExpenseFormProps {
   categories: ExpenseCategory[];
@@ -105,14 +105,6 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
     setSelectedCategory(null);
     setSelectedIncomeCategory(null);
   };
-  
-  const findBudgetForCategory = (category: string) => {
-    return budgets.find(b => b.id === category);
-  };
-
-  const selectedCategoryBudget = transactionType === 'expense' 
-    ? findBudgetForCategory(selectedCategory || '') 
-    : null;
 
   return (
     <Card className="glass animate-scale-in">
