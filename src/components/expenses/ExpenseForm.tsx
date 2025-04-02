@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { Budget } from '@/services/financeService';
@@ -51,6 +52,7 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
+    // Modified condition to check requirements based on transaction type
     const isMissingRequiredFields = 
       amount === 0 || 
       !description || 
@@ -165,7 +167,7 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
             />
           </div>
           
-          {transactionType === 'expense' && (
+          {transactionType === 'expense' && categories.length > 0 && (
             <CategorySelector
               categories={categories}
               selectedCategory={selectedCategory}

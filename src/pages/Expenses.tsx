@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import MobileLayout from '@/components/layout/MobileLayout';
 import ExpenseForm from '@/components/expenses/ExpenseForm';
@@ -142,17 +141,12 @@ const Expenses = () => {
         <div className="flex justify-center p-6">
           <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary"></div>
         </div>
-      ) : budgetCategories.length > 0 ? (
+      ) : (
         <ExpenseForm 
           categories={budgetCategories}
           onAddExpense={handleAddTransaction}
           budgets={budgets}
         />
-      ) : (
-        <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-6">
-          <p className="text-amber-700 font-medium">No budget categories found</p>
-          <p className="text-amber-600 text-sm mt-1">Please create a budget first to add expenses.</p>
-        </div>
       )}
 
       {!isBudgetLoading && budgets.length > 0 && (
