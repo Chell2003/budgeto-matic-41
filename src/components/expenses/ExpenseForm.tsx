@@ -48,16 +48,16 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
   const [savingsType, setSavingsType] = useState<'regular' | 'emergency' | 'goal'>('regular');
   const [date, setDate] = useState<Date>(new Date());
   const [transactionType, setTransactionType] = useState<'expense' | 'income' | 'savings'>('expense');
+  const [customExpenseCategory, setCustomExpenseCategory] = useState<string>('');
   
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Modified condition to check requirements based on transaction type
+    // Check for required fields based on transaction type
     const isMissingRequiredFields = 
       amount === 0 || 
       !description || 
-      (transactionType === 'expense' && !selectedCategory) ||
-      (transactionType === 'income' && !selectedIncomeCategory);
+      (transactionType === 'expense' && !selectedCategory && !customExpenseCategory);
     
     if (isMissingRequiredFields) {
       return;
@@ -67,8 +67,14 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
     let finalAmount = amount;
     
     if (transactionType === 'expense') {
-      const budgetCategory = budgets.find(b => b.id === selectedCategory);
-      category = budgetCategory ? budgetCategory.category.toLowerCase() : '';
+      if (selectedCategory) {
+        const budgetCategory = budgets.find(b => b.id === selectedCategory);
+        category = budgetCategory ? budgetCategory.category.toLowerCase() : '';
+      } else if (customExpenseCategory) {
+        // Use custom category if no predefined category is selected
+        category = customExpenseCategory.toLowerCase();
+      }
+      
       finalAmount = -Math.abs(amount);
     } else if (transactionType === 'income') {
       const incomeCategory = incomeCategories.find(cat => cat.id === selectedIncomeCategory);
@@ -97,6 +103,7 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
     setDescription('');
     setSelectedCategory(null);
     setSelectedIncomeCategory(null);
+    setCustomExpenseCategory('');
     setDate(new Date());
     if (transactionType === 'savings') {
       setSavingsType('regular');
@@ -106,14 +113,15 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
   const resetCategories = () => {
     setSelectedCategory(null);
     setSelectedIncomeCategory(null);
+    setCustomExpenseCategory('');
   };
   
   const findBudgetForCategory = (categoryId: string) => {
     return budgets.find(b => b.id === categoryId);
   };
 
-  const selectedCategoryBudget = transactionType === 'expense' 
-    ? findBudgetForCategory(selectedCategory || '') 
+  const selectedCategoryBudget = transactionType === 'expense' && selectedCategory
+    ? findBudgetForCategory(selectedCategory)
     : null;
 
   return (
@@ -167,13 +175,43 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
             />
           </div>
           
-          {transactionType === 'expense' && categories.length > 0 && (
-            <CategorySelector
-              categories={categories}
-              selectedCategory={selectedCategory}
-              onSelectCategory={setSelectedCategory}
-              type="expense"
-            />
+          {transactionType === 'expense' && (
+            <>
+              {categories.length > 0 ? (
+                <CategorySelector
+                  categories={categories}
+                  selectedCategory={selectedCategory}
+                  onSelectCategory={(id) => {
+                    setSelectedCategory(id);
+                    setCustomExpenseCategory('');
+                  }}
+                  type="expense"
+                />
+              ) : (
+                <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mb-2">
+                  <p className="text-amber-700 text-sm">No budget categories found</p>
+                  <p className="text-amber-600 text-xs mt-1">You can still add expenses with a custom category.</p>
+                </div>
+              )}
+              
+              {(!selectedCategory || categories.length === 0) && (
+                <div className="space-y-2 mt-2">
+                  <p className="text-sm font-medium text-muted-foreground">
+                    {categories.length > 0 ? 'Or enter custom category' : 'Custom category'}
+                  </p>
+                  <Input
+                    placeholder="Enter category (e.g. Food, Transport)"
+                    value={customExpenseCategory}
+                    onChange={(e) => {
+                      setCustomExpenseCategory(e.target.value);
+                      if (e.target.value && selectedCategory) {
+                        setSelectedCategory(null);
+                      }
+                    }}
+                  />
+                </div>
+              )}
+            </>
           )}
           
           {transactionType === 'income' && (
@@ -272,8 +310,7 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
             disabled={
               amount === 0 || 
               !description || 
-              (transactionType === 'expense' && !selectedCategory) ||
-              (transactionType === 'income' && !selectedIncomeCategory)
+              (transactionType === 'expense' && !selectedCategory && !customExpenseCategory)
             }
           >
             Add {transactionType.charAt(0).toUpperCase() + transactionType.slice(1)}
