@@ -105,6 +105,14 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
     setSelectedCategory(null);
     setSelectedIncomeCategory(null);
   };
+  
+  const findBudgetForCategory = (categoryId: string) => {
+    return budgets.find(b => b.id === categoryId);
+  };
+
+  const selectedCategoryBudget = transactionType === 'expense' 
+    ? findBudgetForCategory(selectedCategory || '') 
+    : null;
 
   return (
     <Card className="glass animate-scale-in">
