@@ -1,7 +1,7 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
-import { Budget } from '@/services/financeService';
+import { Budget, getSavingsGoals, SavingsGoal } from '@/services/financeService';
 import { 
   Select,
   SelectContent,
@@ -9,7 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { PiggyBank } from 'lucide-react';
+import { PiggyBank, Target } from 'lucide-react';
 import { incomeCategories } from '@/lib/data';
 import CategorySelector, { ExpenseCategory } from './CategorySelector';
 import AmountInput from '../common/AmountInput';
@@ -46,10 +46,30 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedIncomeCategory, setSelectedIncomeCategory] = useState<string | null>(null);
   const [savingsType, setSavingsType] = useState<'regular' | 'emergency' | 'goal'>('regular');
+  const [selectedGoal, setSelectedGoal] = useState<string | null>(null);
+  const [savingsGoals, setSavingsGoals] = useState<SavingsGoal[]>([]);
   const [date, setDate] = useState<Date>(new Date());
   const [transactionType, setTransactionType] = useState<'expense' | 'income' | 'savings'>('expense');
   const [customExpenseCategory, setCustomExpenseCategory] = useState<string>('');
   
+  useEffect(() => {
+    // Fetch savings goals when the form loads or when savingsType is set to 'goal'
+    if (transactionType === 'savings' && savingsType === 'goal') {
+      fetchSavingsGoals();
+    }
+  }, [transactionType, savingsType]);
+
+  const fetchSavingsGoals = async () => {
+    try {
+      const goals = await getSavingsGoals();
+      // Only show goals that are not complete
+      const activeGoals = goals.filter(goal => goal.progress < 100);
+      setSavingsGoals(activeGoals);
+    } catch (error) {
+      console.error("Error fetching savings goals:", error);
+    }
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -81,7 +101,12 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
       category = incomeCategory ? incomeCategory.name.toLowerCase() : 'income';
       finalAmount = Math.abs(amount);
     } else {
-      category = `savings:${savingsType}`;
+      if (savingsType === 'goal' && selectedGoal) {
+        // Format for saving to specific goal: savings:goal:<goal_id>
+        category = `savings:goal:${selectedGoal}`;
+      } else {
+        category = `savings:${savingsType}`;
+      }
       finalAmount = Math.abs(amount);
     }
     
@@ -107,6 +132,7 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
     setDate(new Date());
     if (transactionType === 'savings') {
       setSavingsType('regular');
+      setSelectedGoal(null);
     }
   };
   
@@ -114,6 +140,7 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
     setSelectedCategory(null);
     setSelectedIncomeCategory(null);
     setCustomExpenseCategory('');
+    setSelectedGoal(null);
   };
   
   const findBudgetForCategory = (categoryId: string) => {
@@ -123,6 +150,9 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
   const selectedCategoryBudget = transactionType === 'expense' && selectedCategory
     ? findBudgetForCategory(selectedCategory)
     : null;
+
+  // Find the selected goal for display
+  const selectedSavingsGoal = savingsGoals.find(goal => goal.id === selectedGoal);
 
   return (
     <Card className="glass animate-scale-in">
@@ -224,38 +254,73 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
           )}
 
           {transactionType === 'savings' && (
-            <div className="space-y-2">
-              <p className="text-sm font-medium text-muted-foreground">
-                Savings Type
-              </p>
-              <Select 
-                value={savingsType} 
-                onValueChange={(value) => setSavingsType(value as 'regular' | 'emergency' | 'goal')}
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select savings type" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="regular" className="flex items-center">
-                    <div className="flex items-center">
-                      <PiggyBank className="mr-2 h-4 w-4 text-finance-saving" />
-                      <span>Regular Savings</span>
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <p className="text-sm font-medium text-muted-foreground">
+                  Savings Type
+                </p>
+                <Select 
+                  value={savingsType} 
+                  onValueChange={(value) => {
+                    setSavingsType(value as 'regular' | 'emergency' | 'goal');
+                    setSelectedGoal(null);
+                  }}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select savings type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="regular" className="flex items-center">
+                      <div className="flex items-center">
+                        <PiggyBank className="mr-2 h-4 w-4 text-finance-saving" />
+                        <span>Regular Savings</span>
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="emergency" className="flex items-center">
+                      <div className="flex items-center">
+                        <PiggyBank className="mr-2 h-4 w-4 text-amber-500" />
+                        <span>Emergency Fund</span>
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="goal" className="flex items-center">
+                      <div className="flex items-center">
+                        <Target className="mr-2 h-4 w-4 text-purple-500" />
+                        <span>Goal-based Savings</span>
+                      </div>
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {savingsType === 'goal' && (
+                <div className="space-y-2">
+                  <p className="text-sm font-medium text-muted-foreground">
+                    Select Goal
+                  </p>
+                  {savingsGoals.length > 0 ? (
+                    <Select 
+                      value={selectedGoal || ''}
+                      onValueChange={setSelectedGoal}
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select a savings goal" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {savingsGoals.map(goal => (
+                          <SelectItem key={goal.id} value={goal.id}>
+                            {goal.name} ({Math.round(goal.progress)}% complete)
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  ) : (
+                    <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
+                      <p className="text-amber-700 text-sm">No active savings goals found</p>
+                      <p className="text-amber-600 text-xs mt-1">Create a savings goal first to contribute to it.</p>
                     </div>
-                  </SelectItem>
-                  <SelectItem value="emergency" className="flex items-center">
-                    <div className="flex items-center">
-                      <PiggyBank className="mr-2 h-4 w-4 text-amber-500" />
-                      <span>Emergency Fund</span>
-                    </div>
-                  </SelectItem>
-                  <SelectItem value="goal" className="flex items-center">
-                    <div className="flex items-center">
-                      <PiggyBank className="mr-2 h-4 w-4 text-purple-500" />
-                      <span>Goal-based Savings</span>
-                    </div>
-                  </SelectItem>
-                </SelectContent>
-              </Select>
+                  )}
+                </div>
+              )}
             </div>
           )}
           
@@ -300,6 +365,12 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
             </div>
           )}
           
+          {transactionType === 'savings' && savingsType === 'goal' && selectedGoal && selectedSavingsGoal && (
+            <div className="text-xs mt-2 p-2 rounded-md bg-blue-50 text-blue-700">
+              {`Contributing to: ${selectedSavingsGoal.name} (${Math.round(selectedSavingsGoal.progress)}% complete)`}
+            </div>
+          )}
+          
           <Button 
             type="submit" 
             className={cn(
@@ -310,7 +381,8 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
             disabled={
               amount === 0 || 
               !description || 
-              (transactionType === 'expense' && !selectedCategory && !customExpenseCategory)
+              (transactionType === 'expense' && !selectedCategory && !customExpenseCategory) ||
+              (transactionType === 'savings' && savingsType === 'goal' && !selectedGoal)
             }
           >
             Add {transactionType.charAt(0).toUpperCase() + transactionType.slice(1)}

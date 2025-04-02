@@ -11,6 +11,7 @@ import Insights from "./pages/Insights";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 import Auth from "./pages/Auth";
+import SavingsGoals from "./pages/SavingsGoals";
 import { AuthProvider } from "@/hooks/use-auth";
 import RequireAuth from "./components/auth/RequireAuth";
 
@@ -30,6 +31,7 @@ const App = () => (
             <Route path="/budget" element={<RequireAuth><Budget /></RequireAuth>} />
             <Route path="/insights" element={<RequireAuth><Insights /></RequireAuth>} />
             <Route path="/settings" element={<RequireAuth><Settings /></RequireAuth>} />
+            <Route path="/savings-goals" element={<RequireAuth><SavingsGoals /></RequireAuth>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>

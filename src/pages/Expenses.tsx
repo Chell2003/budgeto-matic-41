@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import MobileLayout from '@/components/layout/MobileLayout';
 import ExpenseForm from '@/components/expenses/ExpenseForm';
@@ -9,6 +10,9 @@ import { Progress } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
 import { Budget } from '@/services/financeService';
 import { ExpenseCategory } from '@/components/expenses/CategorySelector';
+import { PiggyBank } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Link } from 'react-router-dom';
 
 const Expenses = () => {
   const [transactions, setTransactions] = useState([]);
@@ -136,6 +140,15 @@ const Expenses = () => {
         <h1 className="text-2xl font-bold">Transactions</h1>
         <p className="text-muted-foreground mt-1">Track your income, expenses and savings</p>
       </header>
+
+      <div className="mb-4">
+        <Link to="/savings-goals">
+          <Button className="w-full flex items-center gap-2 bg-finance-saving hover:bg-finance-saving/90">
+            <PiggyBank size={18} />
+            <span>View Savings Goals</span>
+          </Button>
+        </Link>
+      </div>
 
       {isBudgetLoading ? (
         <div className="flex justify-center p-6">

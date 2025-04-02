@@ -66,6 +66,48 @@ export type Database = {
         }
         Relationships: []
       }
+      savings_goals: {
+        Row: {
+          category: string
+          created_at: string
+          current_amount: number
+          frequency: string
+          id: string
+          name: string
+          start_date: string
+          target_amount: number
+          target_date: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          current_amount?: number
+          frequency: string
+          id?: string
+          name: string
+          start_date?: string
+          target_amount: number
+          target_date: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          current_amount?: number
+          frequency?: string
+          id?: string
+          name?: string
+          start_date?: string
+          target_amount?: number
+          target_date?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       transactions: {
         Row: {
           amount: number
