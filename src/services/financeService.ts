@@ -29,7 +29,6 @@ export interface SavingsGoal {
   };
 }
 
-// Map of category to color for consistent styling
 const categoryColors: Record<string, string> = {
   shopping: 'bg-purple-100',
   food: 'bg-orange-100',
@@ -48,7 +47,6 @@ const categoryColors: Record<string, string> = {
   miscellaneous: 'bg-coral-100'
 };
 
-// Transactions
 export const getTransactions = async () => {
   const { data, error } = await supabase
     .from('transactions')
@@ -129,7 +127,6 @@ export const addTransaction = async (transaction: {
   return data;
 };
 
-// Budgets
 export const getBudgets = async () => {
   const currentDate = new Date();
   const currentMonth = currentDate.getMonth() + 1;
@@ -218,7 +215,6 @@ export const addBudget = async (budget: {
   return data;
 };
 
-// Financial summary
 export const getFinancialSummary = async () => {
   const currentDate = new Date();
   const startOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1).toISOString();
@@ -263,7 +259,6 @@ export const getFinancialSummary = async () => {
   };
 };
 
-// Savings Goals
 export const getSavingsGoals = async () => {
   const { data, error } = await supabase
     .from('savings_goals')

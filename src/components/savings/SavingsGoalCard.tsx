@@ -76,11 +76,8 @@ const SavingsGoalCard: React.FC<SavingsGoalCardProps> = ({ goal, onUpdate }) => 
             <Progress 
               value={goal.progress} 
               className="h-2"
-              // Green when completed, otherwise finance-saving color
               style={{
-                backgroundColor: 'rgba(0,0,0,0.1)',
-                '--tw-bg-opacity': 1,
-                backgroundColor: goal.progress >= 100 ? 'rgb(34 197 94 / var(--tw-bg-opacity))' : undefined
+                backgroundColor: goal.progress >= 100 ? 'rgb(34 197 94)' : 'rgba(0,0,0,0.1)'
               }}
             />
           </div>
