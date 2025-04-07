@@ -283,9 +283,10 @@ export const getSavingsGoals = async () => {
     const weeksRemaining = Math.ceil(daysRemaining / 7);
     const monthsRemaining = Math.ceil(daysRemaining / 30);
 
-    const targetContribution = goal.target_contribution !== undefined && goal.target_contribution !== null
-      ? Number(goal.target_contribution)
-      : undefined;
+    let targetContribution;
+    if ('target_contribution' in goal && goal.target_contribution !== null && goal.target_contribution !== undefined) {
+      targetContribution = Number(goal.target_contribution);
+    }
 
     return {
       ...goal,
