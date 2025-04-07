@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { Transaction } from "@/components/dashboard/RecentTransactions";
 
@@ -284,9 +283,13 @@ export const getSavingsGoals = async () => {
     const weeksRemaining = Math.ceil(daysRemaining / 7);
     const monthsRemaining = Math.ceil(daysRemaining / 30);
 
+    const targetContribution = goal.target_contribution !== undefined && goal.target_contribution !== null
+      ? Number(goal.target_contribution)
+      : undefined;
+
     return {
       ...goal,
-      target_contribution: goal.target_contribution ? Number(goal.target_contribution) : undefined,
+      target_contribution: targetContribution,
       progress: Math.min(progress, 100),
       remaining_amount: remainingAmount > 0 ? remainingAmount : 0,
       time_remaining: {
@@ -335,7 +338,6 @@ export const addSavingsGoal = async (goal: {
 };
 
 export const updateSavingsGoalAmount = async (goalId: string, amount: number) => {
-  // First get the current amount
   const { data: currentGoal, error: fetchError } = await supabase
     .from('savings_goals')
     .select('current_amount')
@@ -349,7 +351,6 @@ export const updateSavingsGoalAmount = async (goalId: string, amount: number) =>
 
   const newAmount = Number(currentGoal.current_amount) + amount;
 
-  // Then update with the new amount
   const { data, error } = await supabase
     .from('savings_goals')
     .update({ 
