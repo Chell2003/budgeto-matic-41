@@ -76,6 +76,7 @@ export type Database = {
           name: string
           start_date: string
           target_amount: number
+          target_contribution: number | null
           target_date: string
           updated_at: string
           user_id: string
@@ -89,6 +90,7 @@ export type Database = {
           name: string
           start_date?: string
           target_amount: number
+          target_contribution?: number | null
           target_date: string
           updated_at?: string
           user_id: string
@@ -102,6 +104,7 @@ export type Database = {
           name?: string
           start_date?: string
           target_amount?: number
+          target_contribution?: number | null
           target_date?: string
           updated_at?: string
           user_id?: string

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { 
   Dialog,
@@ -72,13 +71,11 @@ const CreateSavingsGoalDialog: React.FC<CreateSavingsGoalDialogProps> = ({ onGoa
     },
   });
 
-  // Watch the frequency and target_amount to calculate suggested contribution
   const frequency = form.watch('frequency');
   const targetAmount = form.watch('target_amount');
   const currentAmount = form.watch('current_amount') || 0;
   const targetDate = form.watch('target_date');
   
-  // Calculate a suggested contribution amount
   const calculateSuggestedContribution = () => {
     if (!targetDate || !targetAmount || targetAmount <= 0) return 0;
     
@@ -88,7 +85,7 @@ const CreateSavingsGoalDialog: React.FC<CreateSavingsGoalDialogProps> = ({ onGoa
     
     if (diffDays <= 0) return 0;
     
-    const remainingAmount = targetAmount - currentAmount;
+    const remainingAmount = targetAmount - (currentAmount || 0);
     
     if (frequency === 'weekly') {
       const weeks = Math.ceil(diffDays / 7);
@@ -101,7 +98,6 @@ const CreateSavingsGoalDialog: React.FC<CreateSavingsGoalDialogProps> = ({ onGoa
     return 0;
   };
   
-  // Update the target_contribution field when relevant fields change
   React.useEffect(() => {
     if (frequency !== 'none') {
       const suggestedAmount = calculateSuggestedContribution();
