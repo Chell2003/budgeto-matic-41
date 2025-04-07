@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { Transaction } from "@/components/dashboard/RecentTransactions";
 
@@ -22,6 +23,7 @@ export interface SavingsGoal {
   updated_at: string;
   progress: number;
   remaining_amount: number;
+  target_contribution?: number;
   time_remaining: {
     days: number;
     weeks: number;
@@ -284,6 +286,7 @@ export const getSavingsGoals = async () => {
 
     return {
       ...goal,
+      target_contribution: goal.target_contribution ? Number(goal.target_contribution) : undefined,
       progress: Math.min(progress, 100),
       remaining_amount: remainingAmount > 0 ? remainingAmount : 0,
       time_remaining: {
@@ -301,6 +304,7 @@ export const addSavingsGoal = async (goal: {
   current_amount?: number;
   target_date: Date;
   frequency: 'weekly' | 'monthly' | 'none';
+  target_contribution?: number;
 }) => {
   const { data: { user } } = await supabase.auth.getUser();
   
@@ -317,6 +321,7 @@ export const addSavingsGoal = async (goal: {
       current_amount: goal.current_amount || 0,
       target_date: goal.target_date.toISOString(),
       frequency: goal.frequency,
+      target_contribution: goal.target_contribution || 0
     })
     .select()
     .single();
