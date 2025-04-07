@@ -1,11 +1,13 @@
 
 import React from 'react';
 import { cn } from '@/lib/utils';
-import { SavingsGoal } from '@/services/financeService';
+import { SavingsGoal, addTransaction } from '@/services/financeService';
 import { Progress } from '@/components/ui/progress';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { PiggyBank, Calendar, Target, Coins } from 'lucide-react';
+import { PiggyBank, Calendar, Target, Coins, Plus } from 'lucide-react';
 import { format } from 'date-fns';
+import { Button } from '@/components/ui/button';
+import { useToast } from '@/hooks/use-toast';
 
 interface SavingsGoalCardProps {
   goal: SavingsGoal;
@@ -13,6 +15,8 @@ interface SavingsGoalCardProps {
 }
 
 const SavingsGoalCard: React.FC<SavingsGoalCardProps> = ({ goal, onUpdate }) => {
+  const { toast } = useToast();
+  
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
@@ -36,6 +40,42 @@ const SavingsGoalCard: React.FC<SavingsGoalCardProps> = ({ goal, onUpdate }) => 
           ? `${formatCurrency(goal.target_contribution)}/month`
           : '')
     : '';
+
+  const handleAddPlannedContribution = async () => {
+    if (!goal.target_contribution || goal.target_contribution <= 0) {
+      toast({
+        title: "No planned contribution",
+        description: "This goal doesn't have a planned contribution amount.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      // Add the transaction using the goal's planned contribution amount
+      await addTransaction({
+        amount: goal.target_contribution,
+        description: `Contribution to ${goal.name}`,
+        category: `savings:goal:${goal.id}`,
+        date: new Date(),
+      });
+
+      toast({
+        title: "Contribution added",
+        description: `Added ${formatCurrency(goal.target_contribution)} to ${goal.name}`,
+      });
+      
+      // Update the goals list
+      onUpdate();
+    } catch (error) {
+      console.error("Error adding contribution:", error);
+      toast({
+        title: "Error",
+        description: "Failed to add contribution. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
   
   return (
     <Card className="glass animate-scale-in">
@@ -120,6 +160,17 @@ const SavingsGoalCard: React.FC<SavingsGoalCardProps> = ({ goal, onUpdate }) => 
               </div>
             )}
           </div>
+          
+          {goal.target_contribution > 0 && goal.progress < 100 && (
+            <Button 
+              onClick={handleAddPlannedContribution}
+              className="w-full flex items-center justify-center gap-2 bg-finance-saving hover:bg-finance-saving/90"
+              size="sm"
+            >
+              <Plus size={16} />
+              Add {goal.frequency === 'weekly' ? 'Weekly' : 'Monthly'} Contribution
+            </Button>
+          )}
         </div>
       </CardContent>
     </Card>
