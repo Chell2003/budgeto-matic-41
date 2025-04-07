@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { Transaction } from "@/components/dashboard/RecentTransactions";
 
@@ -65,7 +66,38 @@ export const getTransactions = async () => {
     amount: transaction.amount,
     category: transaction.category,
     date: transaction.transaction_date,
+    receipt_url: transaction.receipt_url,
   })) as Transaction[];
+};
+
+// Upload receipt image to Supabase storage
+export const uploadReceiptImage = async (file: File): Promise<string> => {
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  if (!user) {
+    throw new Error('User must be logged in to upload receipt');
+  }
+  
+  // Create a unique file name
+  const fileExt = file.name.split('.').pop();
+  const fileName = `${Math.random().toString(36).substring(2, 15)}_${Date.now()}.${fileExt}`;
+  const filePath = `${user.id}/${fileName}`;
+  
+  const { data, error } = await supabase.storage
+    .from('receipts')
+    .upload(filePath, file);
+  
+  if (error) {
+    console.error('Error uploading receipt:', error);
+    throw error;
+  }
+  
+  // Get the public URL
+  const { data: { publicUrl } } = supabase.storage
+    .from('receipts')
+    .getPublicUrl(filePath);
+  
+  return publicUrl;
 };
 
 export const addTransaction = async (transaction: {
@@ -73,6 +105,7 @@ export const addTransaction = async (transaction: {
   description: string;
   category: string;
   date: Date;
+  receipt?: File;
 }) => {
   const { data: { user } } = await supabase.auth.getUser();
   
@@ -107,6 +140,12 @@ export const addTransaction = async (transaction: {
     type: transactionType
   });
 
+  // Handle receipt upload if provided
+  let receiptUrl = null;
+  if (transaction.receipt) {
+    receiptUrl = await uploadReceiptImage(transaction.receipt);
+  }
+
   const { data, error } = await supabase
     .from('transactions')
     .insert({
@@ -115,7 +154,8 @@ export const addTransaction = async (transaction: {
       description: transaction.description,
       category: normalizedCategory,
       transaction_date: transaction.date.toISOString(),
-      transaction_type: transactionType
+      transaction_type: transactionType,
+      receipt_url: receiptUrl
     })
     .select()
     .single();

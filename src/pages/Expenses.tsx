@@ -76,6 +76,7 @@ const Expenses = () => {
     description: string;
     category: string;
     date: Date;
+    receipt?: File;
   }) => {
     try {
       // Add these console.log statements
@@ -83,7 +84,8 @@ const Expenses = () => {
         amount: transaction.amount,
         description: transaction.description,
         category: transaction.category,
-        date: transaction.date
+        date: transaction.date,
+        hasReceipt: !!transaction.receipt
       });
   
       console.log('Current Budgets BEFORE Transaction:', budgets);
