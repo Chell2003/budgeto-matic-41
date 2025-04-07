@@ -1,22 +1,11 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { cn } from '@/lib/utils';
-import { SavingsGoal, addTransaction, updateSavingsGoalAmount } from '@/services/financeService';
+import { SavingsGoal } from '@/services/financeService';
 import { Progress } from '@/components/ui/progress';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { PiggyBank, Calendar, Target, Coins } from 'lucide-react';
 import { format } from 'date-fns';
-import { toast } from 'sonner';
-import { Button } from '@/components/ui/button';
-import { 
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-  DialogClose
-} from "@/components/ui/dialog";
-import { Input } from '@/components/ui/input';
 
 interface SavingsGoalCardProps {
   goal: SavingsGoal;
@@ -24,11 +13,6 @@ interface SavingsGoalCardProps {
 }
 
 const SavingsGoalCard: React.FC<SavingsGoalCardProps> = ({ goal, onUpdate }) => {
-  const [contributionAmount, setContributionAmount] = useState<number>(
-    goal.target_contribution || Math.min(goal.remaining_amount, 1000)
-  );
-  const [isContributeDialogOpen, setIsContributeDialogOpen] = useState(false);
-  
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
@@ -38,32 +22,6 @@ const SavingsGoalCard: React.FC<SavingsGoalCardProps> = ({ goal, onUpdate }) => 
     }).format(amount);
   };
   
-  const handleAddContribution = async () => {
-    try {
-      if (!contributionAmount || contributionAmount <= 0) {
-        toast.error('Please enter a valid contribution amount');
-        return;
-      }
-
-      const finalAmount = Math.min(contributionAmount, goal.remaining_amount);
-      
-      // Use the ID as part of the category to track which goal receives the contribution
-      await addTransaction({
-        amount: finalAmount,
-        description: `Contribution to ${goal.name}`,
-        category: `savings:goal:${goal.id}`,
-        date: new Date()
-      });
-      
-      toast.success('Contribution added successfully');
-      setIsContributeDialogOpen(false);
-      onUpdate();
-    } catch (error) {
-      console.error('Error adding contribution:', error);
-      toast.error('Failed to add contribution');
-    }
-  };
-
   const targetDate = new Date(goal.target_date);
   const timeText = goal.frequency === 'weekly'
     ? `${goal.time_remaining.weeks} weeks left`
@@ -155,57 +113,6 @@ const SavingsGoalCard: React.FC<SavingsGoalCardProps> = ({ goal, onUpdate }) => 
                 <span className="text-xs text-muted-foreground">
                   {formatCurrency(goal.remaining_amount)} more needed • {timeText}
                 </span>
-                <Dialog open={isContributeDialogOpen} onOpenChange={setIsContributeDialogOpen}>
-                  <DialogTrigger asChild>
-                    <Button 
-                      size="sm" 
-                      variant="outline"
-                      className="text-xs h-8 border-finance-saving text-finance-saving hover:bg-finance-saving/10">
-                      Add Funds
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="sm:max-w-[400px]">
-                    <DialogHeader>
-                      <DialogTitle>Contribute to Goal</DialogTitle>
-                    </DialogHeader>
-                    <div className="space-y-4 py-4">
-                      <div className="space-y-2">
-                        <p className="text-sm font-medium">Goal: {goal.name}</p>
-                        <p className="text-sm text-muted-foreground">
-                          {Math.round(goal.progress)}% complete • {formatCurrency(goal.remaining_amount)} remaining
-                        </p>
-                      </div>
-                      <div className="space-y-2">
-                        <label htmlFor="amount" className="text-sm font-medium">
-                          Contribution Amount
-                        </label>
-                        <Input
-                          id="amount"
-                          type="number"
-                          value={contributionAmount}
-                          onChange={(e) => setContributionAmount(Number(e.target.value))}
-                          min={1}
-                          max={goal.remaining_amount}
-                          className="text-finance-saving"
-                        />
-                        <p className="text-xs text-muted-foreground">
-                          Maximum: {formatCurrency(goal.remaining_amount)}
-                        </p>
-                      </div>
-                      <div className="flex justify-end space-x-2 pt-4">
-                        <DialogClose asChild>
-                          <Button type="button" variant="outline">Cancel</Button>
-                        </DialogClose>
-                        <Button 
-                          onClick={handleAddContribution} 
-                          className="bg-finance-saving hover:bg-finance-saving/90"
-                        >
-                          Contribute
-                        </Button>
-                      </div>
-                    </div>
-                  </DialogContent>
-                </Dialog>
               </div>
             ) : (
               <div className="text-xs text-green-600 font-medium">
