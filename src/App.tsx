@@ -14,31 +14,34 @@ import Auth from "./pages/Auth";
 import SavingsGoals from "./pages/SavingsGoals";
 import CategoryTransactions from "./pages/CategoryTransactions";
 import { AuthProvider } from "@/hooks/use-auth";
+import { ThemeProvider } from "@/hooks/use-theme";
 import RequireAuth from "./components/auth/RequireAuth";
 
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <BrowserRouter>
-        <AuthProvider>
-          <Toaster />
-          <Sonner />
-          <Routes>
-            <Route path="/auth" element={<Auth />} />
-            <Route path="/" element={<RequireAuth><Dashboard /></RequireAuth>} />
-            <Route path="/expenses" element={<RequireAuth><Expenses /></RequireAuth>} />
-            <Route path="/budget" element={<RequireAuth><Budget /></RequireAuth>} />
-            <Route path="/insights" element={<RequireAuth><Insights /></RequireAuth>} />
-            <Route path="/settings" element={<RequireAuth><Settings /></RequireAuth>} />
-            <Route path="/savings-goals" element={<RequireAuth><SavingsGoals /></RequireAuth>} />
-            <Route path="/category/:category" element={<RequireAuth><CategoryTransactions /></RequireAuth>} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </AuthProvider>
-      </BrowserRouter>
-    </TooltipProvider>
+    <ThemeProvider>
+      <TooltipProvider>
+        <BrowserRouter>
+          <AuthProvider>
+            <Toaster />
+            <Sonner />
+            <Routes>
+              <Route path="/auth" element={<Auth />} />
+              <Route path="/" element={<RequireAuth><Dashboard /></RequireAuth>} />
+              <Route path="/expenses" element={<RequireAuth><Expenses /></RequireAuth>} />
+              <Route path="/budget" element={<RequireAuth><Budget /></RequireAuth>} />
+              <Route path="/insights" element={<RequireAuth><Insights /></RequireAuth>} />
+              <Route path="/settings" element={<RequireAuth><Settings /></RequireAuth>} />
+              <Route path="/savings-goals" element={<RequireAuth><SavingsGoals /></RequireAuth>} />
+              <Route path="/category/:category" element={<RequireAuth><CategoryTransactions /></RequireAuth>} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </AuthProvider>
+        </BrowserRouter>
+      </TooltipProvider>
+    </ThemeProvider>
   </QueryClientProvider>
 );
 
