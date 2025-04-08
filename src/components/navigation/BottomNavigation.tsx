@@ -8,8 +8,8 @@ const BottomNavigation: React.FC = () => {
   const location = useLocation();
   
   const navItems = [
-    { name: 'Dashboard', path: '/', icon: Home },
-    { name: 'Expenses', path: '/expenses', icon: Wallet },
+    { name: 'Home', path: '/', icon: Home },
+    { name: 'Transactions', path: '/expenses', icon: Wallet },
     { name: 'Budget', path: '/budget', icon: BarChart3 },
     { name: 'Insights', path: '/insights', icon: LineChart },
     { name: 'Settings', path: '/settings', icon: Settings },
