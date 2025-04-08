@@ -145,7 +145,7 @@ const RecentTransactions: React.FC<RecentTransactionsProps> = ({
       <h3 className="font-medium text-lg mb-4">Recent Transactions</h3>
       
       {transactions.length === 0 ? (
-        <div className="text-center p-6 bg-gray-50 rounded-lg">
+        <div className="text-center p-6 bg-muted rounded-lg">
           <p className="text-muted-foreground">No transactions yet</p>
         </div>
       ) : (
@@ -162,14 +162,15 @@ const RecentTransactions: React.FC<RecentTransactionsProps> = ({
             return (
               <div 
                 key={category} 
-                className="bg-white p-4 rounded-xl shadow-subtle transition-all hover:shadow-md active:scale-[0.98]"
+                className="bg-card p-4 rounded-xl shadow-subtle transition-all hover:shadow-md active:scale-[0.98]"
                 onClick={() => onCategoryClick && onCategoryClick(category)}
               >
                 <div className="flex items-start justify-between">
                   <div className="flex gap-3">
                     <div className={cn(
                       "p-2 rounded-full",
-                      isExpense ? "bg-red-100" : isSavings ? "bg-green-100" : "bg-blue-100"
+                      isExpense ? "bg-red-100 dark:bg-red-900/20" : 
+                      isSavings ? "bg-green-100 dark:bg-green-900/20" : "bg-blue-100 dark:bg-blue-900/20"
                     )}>
                       {getTransactionIcon(category)}
                     </div>
@@ -228,3 +229,4 @@ const RecentTransactions: React.FC<RecentTransactionsProps> = ({
 };
 
 export default RecentTransactions;
+

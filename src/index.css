@@ -99,7 +99,8 @@
 @layer components {
   /* Glassmorphism */
   .glass {
-    @apply bg-white/70 backdrop-blur-xl border border-white/20 shadow-glass dark:bg-black/40 dark:border-white/10;
+    @apply bg-white/70 backdrop-blur-xl border border-white/20 shadow-glass 
+           dark:bg-black/40 dark:border-white/10;
   }
   
   .glass-card {

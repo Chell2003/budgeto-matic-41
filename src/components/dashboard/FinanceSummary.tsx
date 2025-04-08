@@ -32,21 +32,21 @@ const FinanceSummary: React.FC<FinanceSummaryProps> = ({
       amount: income,
       icon: ArrowUpIcon,
       color: 'text-finance-income',
-      bgColor: 'bg-finance-income/10',
+      bgColor: 'bg-finance-income/10 dark:bg-finance-income/20',
     },
     {
       title: 'Expenses',
       amount: expenses,
       icon: ArrowDownIcon,
       color: 'text-finance-expense',
-      bgColor: 'bg-finance-expense/10',
+      bgColor: 'bg-finance-expense/10 dark:bg-finance-expense/20',
     },
     {
       title: 'Savings',
       amount: savings,
       icon: PiggyBank,
       color: 'text-finance-saving',
-      bgColor: 'bg-finance-saving/10',
+      bgColor: 'bg-finance-saving/10 dark:bg-finance-saving/20',
     },
   ];
 
@@ -90,3 +90,4 @@ const FinanceSummary: React.FC<FinanceSummaryProps> = ({
 };
 
 export default FinanceSummary;
+

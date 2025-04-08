@@ -94,11 +94,11 @@ const CategoryTransactions = () => {
             <p className="text-center text-muted-foreground py-8">No transactions found</p>
           ) : (
             transactions.map(transaction => (
-              <div key={transaction.id} className="bg-white p-4 rounded-xl shadow-subtle">
+              <div key={transaction.id} className="bg-card p-4 rounded-xl shadow-subtle">
                 <div className="flex items-start justify-between">
                   <div>
                     <h4 className="font-medium">{transaction.description}</h4>
-                    <p className="text-xs text-gray-500">
+                    <p className="text-xs text-muted-foreground">
                       {new Date(transaction.date).toLocaleDateString('en-US', {
                         year: 'numeric',
                         month: 'short',
@@ -115,7 +115,7 @@ const CategoryTransactions = () => {
                   <div className="mt-2">
                     <button 
                       onClick={() => viewReceipt(transaction.receipt_url!)}
-                      className="text-xs text-blue-600 flex items-center gap-1"
+                      className="text-xs text-blue-600 dark:text-blue-400 flex items-center gap-1"
                     >
                       <FileImage size={14} />
                       View Receipt
@@ -150,3 +150,4 @@ const CategoryTransactions = () => {
 };
 
 export default CategoryTransactions;
+
