@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { Transaction } from "@/components/dashboard/RecentTransactions";
 
@@ -49,25 +48,34 @@ const categoryColors: Record<string, string> = {
   miscellaneous: 'bg-coral-100'
 };
 
-export const getTransactions = async () => {
-  const { data, error } = await supabase
-    .from('transactions')
-    .select('*')
-    .order('transaction_date', { ascending: false });
-  
-  if (error) {
-    console.error('Error fetching transactions:', error);
+export const getTransactions = async (): Promise<Transaction[]> => {
+  try {
+    const { data, error } = await supabase
+      .from("transactions")
+      .select("*")
+      .order("transaction_date", { ascending: false });
+
+    if (error) {
+      console.error("Error fetching transactions:", error);
+      throw new Error(error.message);
+    }
+
+    if (!data) {
+      return [];
+    }
+
+    return data.map((transaction) => ({
+      id: transaction.id,
+      description: transaction.description,
+      amount: transaction.amount,
+      category: transaction.category,
+      date: transaction.transaction_date,
+      receipt_url: transaction.receipt_url || null,
+    })) as Transaction[];
+  } catch (error) {
+    console.error("Error in getTransactions:", error);
     throw error;
   }
-  
-  return data.map(transaction => ({
-    id: transaction.id,
-    description: transaction.description,
-    amount: transaction.amount,
-    category: transaction.category,
-    date: transaction.transaction_date,
-    receipt_url: transaction.receipt_url || null,
-  })) as Transaction[];
 };
 
 export const uploadReceiptImage = async (file: File): Promise<string> => {

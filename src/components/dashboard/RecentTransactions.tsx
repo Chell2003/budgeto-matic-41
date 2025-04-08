@@ -21,17 +21,19 @@ export interface Transaction {
   amount: number;
   category: string;
   date: string;
-  receipt_url?: string;
+  receipt_url?: string | null;
 }
 
 interface RecentTransactionsProps {
   transactions: Transaction[];
   budgets?: Budget[];
+  onCategoryClick?: (category: string) => void;
 }
 
 const RecentTransactions: React.FC<RecentTransactionsProps> = ({ 
   transactions,
-  budgets = []
+  budgets = [],
+  onCategoryClick
 }) => {
   const [selectedReceiptUrl, setSelectedReceiptUrl] = useState<string | null>(null);
 
@@ -128,6 +130,16 @@ const RecentTransactions: React.FC<RecentTransactionsProps> = ({
     setSelectedReceiptUrl(null);
   };
 
+  // Group transactions by category
+  const groupedTransactions = transactions.reduce((acc, transaction) => {
+    const category = transaction.category;
+    if (!acc[category]) {
+      acc[category] = [];
+    }
+    acc[category].push(transaction);
+    return acc;
+  }, {} as Record<string, Transaction[]>);
+
   return (
     <div>
       <h3 className="font-medium text-lg mb-4">Recent Transactions</h3>
@@ -138,46 +150,44 @@ const RecentTransactions: React.FC<RecentTransactionsProps> = ({
         </div>
       ) : (
         <div className="space-y-3">
-          {transactions.map(transaction => {
-            const isExpense = transaction.amount < 0;
-            const isSavings = transaction.category.startsWith('savings:');
+          {/* Show category cards instead of individual transactions */}
+          {Object.entries(groupedTransactions).map(([category, categoryTransactions]) => {
+            const isExpense = categoryTransactions[0].amount < 0;
+            const isSavings = category.startsWith('savings:');
+            const totalAmount = categoryTransactions.reduce(
+              (sum, t) => sum + t.amount, 
+              0
+            );
             
             return (
-              <div key={transaction.id} className="bg-white p-4 rounded-xl shadow-subtle">
+              <div 
+                key={category} 
+                className="bg-white p-4 rounded-xl shadow-subtle transition-all hover:shadow-md active:scale-[0.98]"
+                onClick={() => onCategoryClick && onCategoryClick(category)}
+              >
                 <div className="flex items-start justify-between">
                   <div className="flex gap-3">
                     <div className={cn(
                       "p-2 rounded-full",
                       isExpense ? "bg-red-100" : isSavings ? "bg-green-100" : "bg-blue-100"
                     )}>
-                      {getTransactionIcon(transaction.category)}
+                      {getTransactionIcon(category)}
                     </div>
                     
                     <div>
-                      <h4 className="font-medium">{transaction.description}</h4>
+                      <h4 className="font-medium">
+                        {category.startsWith('savings:goal:')
+                          ? 'Savings Goal'
+                          : category.charAt(0).toUpperCase() + 
+                            category.slice(1).replace('savings:', '')}
+                      </h4>
                       <div className="flex gap-2 mt-1">
                         <span className={cn(
                           "text-xs px-2 py-0.5 rounded-full",
-                          getCategoryColor(transaction.category)
+                          getCategoryColor(category)
                         )}>
-                          {transaction.category.startsWith('savings:goal:')
-                            ? 'Savings Goal'
-                            : transaction.category.charAt(0).toUpperCase() + 
-                              transaction.category.slice(1).replace('savings:', '')}
+                          {categoryTransactions.length} Transactions
                         </span>
-                        <span className="text-xs text-gray-500">
-                          {format(new Date(transaction.date), 'MMM d, yyyy')}
-                        </span>
-                        
-                        {transaction.receipt_url && (
-                          <button 
-                            onClick={() => viewReceipt(transaction.receipt_url!)}
-                            className="text-xs flex items-center gap-1 text-blue-600 hover:text-blue-800"
-                          >
-                            <FileImage size={12} />
-                            Receipt
-                          </button>
-                        )}
                       </div>
                     </div>
                   </div>
@@ -187,7 +197,7 @@ const RecentTransactions: React.FC<RecentTransactionsProps> = ({
                     isExpense ? "text-finance-expense" : 
                     isSavings ? "text-finance-saving" : "text-finance-income"
                   )}>
-                    {isExpense ? '-' : '+'}{formatCurrency(Math.abs(transaction.amount))}
+                    {totalAmount < 0 ? '-' : '+'}{formatCurrency(Math.abs(totalAmount))}
                   </p>
                 </div>
               </div>
