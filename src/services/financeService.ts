@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { Transaction } from "@/components/dashboard/RecentTransactions";
 
@@ -64,7 +65,8 @@ export const getTransactions = async (): Promise<Transaction[]> => {
       return [];
     }
 
-    return data.map((transaction) => ({
+    // Make sure to map all properties including receipt_url
+    return data.map((transaction: any) => ({
       id: transaction.id,
       description: transaction.description,
       amount: transaction.amount,
