@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { Transaction } from "@/components/dashboard/RecentTransactions";
 
@@ -70,7 +69,6 @@ export const getTransactions = async () => {
   })) as Transaction[];
 };
 
-// Upload receipt image to Supabase storage
 export const uploadReceiptImage = async (file: File): Promise<string> => {
   const { data: { user } } = await supabase.auth.getUser();
   
@@ -78,7 +76,6 @@ export const uploadReceiptImage = async (file: File): Promise<string> => {
     throw new Error('User must be logged in to upload receipt');
   }
   
-  // Create a unique file name
   const fileExt = file.name.split('.').pop();
   const fileName = `${Math.random().toString(36).substring(2, 15)}_${Date.now()}.${fileExt}`;
   const filePath = `${user.id}/${fileName}`;
@@ -92,7 +89,6 @@ export const uploadReceiptImage = async (file: File): Promise<string> => {
     throw error;
   }
   
-  // Get the public URL
   const { data: { publicUrl } } = supabase.storage
     .from('receipts')
     .getPublicUrl(filePath);
@@ -140,7 +136,6 @@ export const addTransaction = async (transaction: {
     type: transactionType
   });
 
-  // Handle receipt upload if provided
   let receiptUrl = null;
   if (transaction.receipt) {
     receiptUrl = await uploadReceiptImage(transaction.receipt);
