@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { Transaction } from "@/components/dashboard/RecentTransactions";
 
@@ -65,7 +66,7 @@ export const getTransactions = async () => {
     amount: transaction.amount,
     category: transaction.category,
     date: transaction.transaction_date,
-    receipt_url: transaction.receipt_url,
+    receipt_url: transaction.receipt_url || null,
   })) as Transaction[];
 };
 

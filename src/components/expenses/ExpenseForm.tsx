@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { cn } from '@/lib/utils';
 import { Budget, getSavingsGoals, SavingsGoal } from '@/services/financeService';
@@ -57,14 +56,12 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
   const fileInputRef = useRef<HTMLInputElement>(null);
   
   useEffect(() => {
-    // Fetch savings goals when the form loads or when savingsType is set to 'goal'
     if (transactionType === 'savings' && savingsType === 'goal') {
       fetchSavingsGoals();
     }
   }, [transactionType, savingsType]);
 
   useEffect(() => {
-    // Clear receipt when transaction type changes
     if (transactionType !== 'expense') {
       setReceipt(null);
       setReceiptPreview(null);
@@ -74,7 +71,6 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
   const fetchSavingsGoals = async () => {
     try {
       const goals = await getSavingsGoals();
-      // Only show goals that are not complete
       const activeGoals = goals.filter(goal => goal.progress < 100);
       setSavingsGoals(activeGoals);
     } catch (error) {
@@ -85,7 +81,6 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Check for required fields based on transaction type
     const isMissingRequiredFields = 
       amount === 0 || 
       !description || 
@@ -103,7 +98,6 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
         const budgetCategory = budgets.find(b => b.id === selectedCategory);
         category = budgetCategory ? budgetCategory.category.toLowerCase() : '';
       } else if (customExpenseCategory) {
-        // Use custom category if no predefined category is selected
         category = customExpenseCategory.toLowerCase();
       }
       
@@ -114,7 +108,6 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
       finalAmount = Math.abs(amount);
     } else {
       if (savingsType === 'goal' && selectedGoal) {
-        // Format for saving to specific goal: savings:goal:<goal_id>
         category = `savings:goal:${selectedGoal}`;
       } else {
         category = `savings:${savingsType}`;
@@ -151,14 +144,14 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
       setSelectedGoal(null);
     }
   };
-  
+
   const resetCategories = () => {
     setSelectedCategory(null);
     setSelectedIncomeCategory(null);
     setCustomExpenseCategory('');
     setSelectedGoal(null);
   };
-  
+
   const findBudgetForCategory = (categoryId: string) => {
     return budgets.find(b => b.id === categoryId);
   };
@@ -168,7 +161,6 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
       const file = event.target.files[0];
       setReceipt(file);
       
-      // Create preview
       const reader = new FileReader();
       reader.onload = (e) => {
         if (e.target?.result) {
@@ -193,7 +185,6 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
     }
   };
 
-  // Find the selected goal for display
   const selectedSavingsGoal = savingsGoals.find(goal => goal.id === selectedGoal);
   const selectedCategoryBudget = transactionType === 'expense' && selectedCategory
     ? findBudgetForCategory(selectedCategory)
@@ -287,7 +278,6 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
                 </div>
               )}
 
-              {/* Receipt upload section */}
               <div className="space-y-2">
                 <p className="text-sm font-medium text-muted-foreground">
                   Receipt Image (Optional)
