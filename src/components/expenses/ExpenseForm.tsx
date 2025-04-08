@@ -1,5 +1,4 @@
-
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { cn } from '@/lib/utils';
 import { Budget, getSavingsGoals, SavingsGoal } from '@/services/financeService';
 import { 
@@ -9,7 +8,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { PiggyBank, Target } from 'lucide-react';
+import { PiggyBank, Target, Camera, FileImage, X } from 'lucide-react';
 import { incomeCategories } from '@/lib/data';
 import CategorySelector, { ExpenseCategory } from './CategorySelector';
 import AmountInput from '../common/AmountInput';
@@ -32,6 +31,7 @@ interface ExpenseFormProps {
     description: string;
     category: string;
     date: Date;
+    receipt?: File;
   }) => void;
   budgets?: Budget[];
 }
@@ -51,18 +51,26 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
   const [date, setDate] = useState<Date>(new Date());
   const [transactionType, setTransactionType] = useState<'expense' | 'income' | 'savings'>('expense');
   const [customExpenseCategory, setCustomExpenseCategory] = useState<string>('');
+  const [receipt, setReceipt] = useState<File | null>(null);
+  const [receiptPreview, setReceiptPreview] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   
   useEffect(() => {
-    // Fetch savings goals when the form loads or when savingsType is set to 'goal'
     if (transactionType === 'savings' && savingsType === 'goal') {
       fetchSavingsGoals();
     }
   }, [transactionType, savingsType]);
 
+  useEffect(() => {
+    if (transactionType !== 'expense') {
+      setReceipt(null);
+      setReceiptPreview(null);
+    }
+  }, [transactionType]);
+
   const fetchSavingsGoals = async () => {
     try {
       const goals = await getSavingsGoals();
-      // Only show goals that are not complete
       const activeGoals = goals.filter(goal => goal.progress < 100);
       setSavingsGoals(activeGoals);
     } catch (error) {
@@ -73,7 +81,6 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Check for required fields based on transaction type
     const isMissingRequiredFields = 
       amount === 0 || 
       !description || 
@@ -91,7 +98,6 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
         const budgetCategory = budgets.find(b => b.id === selectedCategory);
         category = budgetCategory ? budgetCategory.category.toLowerCase() : '';
       } else if (customExpenseCategory) {
-        // Use custom category if no predefined category is selected
         category = customExpenseCategory.toLowerCase();
       }
       
@@ -102,7 +108,6 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
       finalAmount = Math.abs(amount);
     } else {
       if (savingsType === 'goal' && selectedGoal) {
-        // Format for saving to specific goal: savings:goal:<goal_id>
         category = `savings:goal:${selectedGoal}`;
       } else {
         category = `savings:${savingsType}`;
@@ -114,14 +119,16 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
       amount: finalAmount, 
       description, 
       category, 
-      date 
+      date,
+      receipt
     });
     
     onAddExpense({
       amount: finalAmount,
       description,
       category,
-      date
+      date,
+      receipt: receipt || undefined
     });
     
     setAmount(0);
@@ -130,29 +137,58 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
     setSelectedIncomeCategory(null);
     setCustomExpenseCategory('');
     setDate(new Date());
+    setReceipt(null);
+    setReceiptPreview(null);
     if (transactionType === 'savings') {
       setSavingsType('regular');
       setSelectedGoal(null);
     }
   };
-  
+
   const resetCategories = () => {
     setSelectedCategory(null);
     setSelectedIncomeCategory(null);
     setCustomExpenseCategory('');
     setSelectedGoal(null);
   };
-  
+
   const findBudgetForCategory = (categoryId: string) => {
     return budgets.find(b => b.id === categoryId);
   };
 
+  const handleReceiptChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files && event.target.files[0]) {
+      const file = event.target.files[0];
+      setReceipt(file);
+      
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        if (e.target?.result) {
+          setReceiptPreview(e.target.result as string);
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleCaptureClick = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  };
+
+  const handleRemoveReceipt = () => {
+    setReceipt(null);
+    setReceiptPreview(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  const selectedSavingsGoal = savingsGoals.find(goal => goal.id === selectedGoal);
   const selectedCategoryBudget = transactionType === 'expense' && selectedCategory
     ? findBudgetForCategory(selectedCategory)
     : null;
-
-  // Find the selected goal for display
-  const selectedSavingsGoal = savingsGoals.find(goal => goal.id === selectedGoal);
 
   return (
     <Card className="glass animate-scale-in">
@@ -241,6 +277,57 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
                   />
                 </div>
               )}
+
+              <div className="space-y-2">
+                <p className="text-sm font-medium text-muted-foreground">
+                  Receipt Image (Optional)
+                </p>
+                <input
+                  type="file"
+                  accept="image/*"
+                  ref={fileInputRef}
+                  onChange={handleReceiptChange}
+                  className="hidden"
+                />
+
+                {receiptPreview ? (
+                  <div className="relative">
+                    <img 
+                      src={receiptPreview} 
+                      alt="Receipt" 
+                      className="w-full h-40 object-cover rounded-md"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleRemoveReceipt}
+                      className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1"
+                    >
+                      <X size={16} />
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex gap-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={handleCaptureClick}
+                      className="flex-1 flex items-center justify-center gap-2"
+                    >
+                      <Camera size={16} />
+                      Take Photo
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={handleCaptureClick}
+                      className="flex-1 flex items-center justify-center gap-2"
+                    >
+                      <FileImage size={16} />
+                      Upload Image
+                    </Button>
+                  </div>
+                )}
+              </div>
             </>
           )}
           

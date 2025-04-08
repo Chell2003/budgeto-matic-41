@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { Transaction } from "@/components/dashboard/RecentTransactions";
 
@@ -22,6 +23,7 @@ export interface SavingsGoal {
   updated_at: string;
   progress: number;
   remaining_amount: number;
+  target_contribution?: number;
   time_remaining: {
     days: number;
     weeks: number;
@@ -47,24 +49,62 @@ const categoryColors: Record<string, string> = {
   miscellaneous: 'bg-coral-100'
 };
 
-export const getTransactions = async () => {
-  const { data, error } = await supabase
-    .from('transactions')
-    .select('*')
-    .order('transaction_date', { ascending: false });
+export const getTransactions = async (): Promise<Transaction[]> => {
+  try {
+    const { data, error } = await supabase
+      .from("transactions")
+      .select("*")
+      .order("transaction_date", { ascending: false });
+
+    if (error) {
+      console.error("Error fetching transactions:", error);
+      throw new Error(error.message);
+    }
+
+    if (!data) {
+      return [];
+    }
+
+    // Make sure to map all properties including receipt_url
+    return data.map((transaction: any) => ({
+      id: transaction.id,
+      description: transaction.description,
+      amount: transaction.amount,
+      category: transaction.category,
+      date: transaction.transaction_date,
+      receipt_url: transaction.receipt_url || null,
+    })) as Transaction[];
+  } catch (error) {
+    console.error("Error in getTransactions:", error);
+    throw error;
+  }
+};
+
+export const uploadReceiptImage = async (file: File): Promise<string> => {
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  if (!user) {
+    throw new Error('User must be logged in to upload receipt');
+  }
+  
+  const fileExt = file.name.split('.').pop();
+  const fileName = `${Math.random().toString(36).substring(2, 15)}_${Date.now()}.${fileExt}`;
+  const filePath = `${user.id}/${fileName}`;
+  
+  const { data, error } = await supabase.storage
+    .from('receipts')
+    .upload(filePath, file);
   
   if (error) {
-    console.error('Error fetching transactions:', error);
+    console.error('Error uploading receipt:', error);
     throw error;
   }
   
-  return data.map(transaction => ({
-    id: transaction.id,
-    description: transaction.description,
-    amount: transaction.amount,
-    category: transaction.category,
-    date: transaction.transaction_date,
-  })) as Transaction[];
+  const { data: { publicUrl } } = supabase.storage
+    .from('receipts')
+    .getPublicUrl(filePath);
+  
+  return publicUrl;
 };
 
 export const addTransaction = async (transaction: {
@@ -72,6 +112,7 @@ export const addTransaction = async (transaction: {
   description: string;
   category: string;
   date: Date;
+  receipt?: File;
 }) => {
   const { data: { user } } = await supabase.auth.getUser();
   
@@ -106,6 +147,11 @@ export const addTransaction = async (transaction: {
     type: transactionType
   });
 
+  let receiptUrl = null;
+  if (transaction.receipt) {
+    receiptUrl = await uploadReceiptImage(transaction.receipt);
+  }
+
   const { data, error } = await supabase
     .from('transactions')
     .insert({
@@ -114,7 +160,8 @@ export const addTransaction = async (transaction: {
       description: transaction.description,
       category: normalizedCategory,
       transaction_date: transaction.date.toISOString(),
-      transaction_type: transactionType
+      transaction_type: transactionType,
+      receipt_url: receiptUrl
     })
     .select()
     .single();
@@ -282,8 +329,14 @@ export const getSavingsGoals = async () => {
     const weeksRemaining = Math.ceil(daysRemaining / 7);
     const monthsRemaining = Math.ceil(daysRemaining / 30);
 
+    let targetContribution;
+    if ('target_contribution' in goal && goal.target_contribution !== null && goal.target_contribution !== undefined) {
+      targetContribution = Number(goal.target_contribution);
+    }
+
     return {
       ...goal,
+      target_contribution: targetContribution,
       progress: Math.min(progress, 100),
       remaining_amount: remainingAmount > 0 ? remainingAmount : 0,
       time_remaining: {
@@ -301,6 +354,7 @@ export const addSavingsGoal = async (goal: {
   current_amount?: number;
   target_date: Date;
   frequency: 'weekly' | 'monthly' | 'none';
+  target_contribution?: number;
 }) => {
   const { data: { user } } = await supabase.auth.getUser();
   
@@ -317,6 +371,7 @@ export const addSavingsGoal = async (goal: {
       current_amount: goal.current_amount || 0,
       target_date: goal.target_date.toISOString(),
       frequency: goal.frequency,
+      target_contribution: goal.target_contribution || 0
     })
     .select()
     .single();
@@ -330,7 +385,6 @@ export const addSavingsGoal = async (goal: {
 };
 
 export const updateSavingsGoalAmount = async (goalId: string, amount: number) => {
-  // First get the current amount
   const { data: currentGoal, error: fetchError } = await supabase
     .from('savings_goals')
     .select('current_amount')
@@ -344,7 +398,6 @@ export const updateSavingsGoalAmount = async (goalId: string, amount: number) =>
 
   const newAmount = Number(currentGoal.current_amount) + amount;
 
-  // Then update with the new amount
   const { data, error } = await supabase
     .from('savings_goals')
     .update({ 

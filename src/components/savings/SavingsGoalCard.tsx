@@ -1,14 +1,13 @@
 
 import React from 'react';
 import { cn } from '@/lib/utils';
-import { SavingsGoal } from '@/services/financeService';
+import { SavingsGoal, addTransaction } from '@/services/financeService';
 import { Progress } from '@/components/ui/progress';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { PiggyBank, Calendar, Target } from 'lucide-react';
+import { PiggyBank, Calendar, Target, Coins, Plus } from 'lucide-react';
 import { format } from 'date-fns';
-import { addTransaction } from '@/services/financeService';
-import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
+import { useToast } from '@/hooks/use-toast';
 
 interface SavingsGoalCardProps {
   goal: SavingsGoal;
@@ -16,6 +15,8 @@ interface SavingsGoalCardProps {
 }
 
 const SavingsGoalCard: React.FC<SavingsGoalCardProps> = ({ goal, onUpdate }) => {
+  const { toast } = useToast();
+  
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
@@ -25,30 +26,56 @@ const SavingsGoalCard: React.FC<SavingsGoalCardProps> = ({ goal, onUpdate }) => 
     }).format(amount);
   };
   
-  const handleAddContribution = async () => {
-    try {
-      // Use the ID as part of the category to track which goal receives the contribution
-      await addTransaction({
-        amount: Math.min(goal.remaining_amount, 1000), // Default contribution of 1000 or remaining amount
-        description: `Contribution to ${goal.name}`,
-        category: `savings:goal:${goal.id}`,
-        date: new Date()
-      });
-      
-      toast.success('Contribution added successfully');
-      onUpdate();
-    } catch (error) {
-      console.error('Error adding contribution:', error);
-      toast.error('Failed to add contribution');
-    }
-  };
-
   const targetDate = new Date(goal.target_date);
   const timeText = goal.frequency === 'weekly'
     ? `${goal.time_remaining.weeks} weeks left`
     : goal.frequency === 'monthly'
       ? `${goal.time_remaining.months} months left`
       : `${goal.time_remaining.days} days left`;
+  
+  const contributionText = goal.target_contribution > 0
+    ? (goal.frequency === 'weekly'
+        ? `${formatCurrency(goal.target_contribution)}/week`
+        : goal.frequency === 'monthly'
+          ? `${formatCurrency(goal.target_contribution)}/month`
+          : '')
+    : '';
+
+  const handleAddPlannedContribution = async () => {
+    if (!goal.target_contribution || goal.target_contribution <= 0) {
+      toast({
+        title: "No planned contribution",
+        description: "This goal doesn't have a planned contribution amount.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      // Add the transaction using the goal's planned contribution amount
+      await addTransaction({
+        amount: goal.target_contribution,
+        description: `Contribution to ${goal.name}`,
+        category: `savings:goal:${goal.id}`,
+        date: new Date(),
+      });
+
+      toast({
+        title: "Contribution added",
+        description: `Added ${formatCurrency(goal.target_contribution)} to ${goal.name}`,
+      });
+      
+      // Update the goals list
+      onUpdate();
+    } catch (error) {
+      console.error("Error adding contribution:", error);
+      toast({
+        title: "Error",
+        description: "Failed to add contribution. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
   
   return (
     <Card className="glass animate-scale-in">
@@ -99,6 +126,18 @@ const SavingsGoalCard: React.FC<SavingsGoalCardProps> = ({ goal, onUpdate }) => 
               {formatCurrency(goal.target_amount)}
             </div>
             
+            {contributionText && (
+              <>
+                <div className="flex items-center gap-2">
+                  <Coins size={16} className="text-amber-500" />
+                  <span className="text-muted-foreground">Plan</span>
+                </div>
+                <div className="text-right font-medium">
+                  {contributionText}
+                </div>
+              </>
+            )}
+            
             <div className="flex items-center gap-2">
               <Calendar size={16} className="text-gray-500" />
               <span className="text-muted-foreground">Due</span>
@@ -114,13 +153,6 @@ const SavingsGoalCard: React.FC<SavingsGoalCardProps> = ({ goal, onUpdate }) => 
                 <span className="text-xs text-muted-foreground">
                   {formatCurrency(goal.remaining_amount)} more needed • {timeText}
                 </span>
-                <Button 
-                  size="sm" 
-                  variant="outline"
-                  onClick={handleAddContribution}
-                  className="text-xs h-8 border-finance-saving text-finance-saving hover:bg-finance-saving/10">
-                  Add Funds
-                </Button>
               </div>
             ) : (
               <div className="text-xs text-green-600 font-medium">
@@ -128,6 +160,17 @@ const SavingsGoalCard: React.FC<SavingsGoalCardProps> = ({ goal, onUpdate }) => 
               </div>
             )}
           </div>
+          
+          {goal.target_contribution > 0 && goal.progress < 100 && (
+            <Button 
+              onClick={handleAddPlannedContribution}
+              className="w-full flex items-center justify-center gap-2 bg-finance-saving hover:bg-finance-saving/90"
+              size="sm"
+            >
+              <Plus size={16} />
+              Add {goal.frequency === 'weekly' ? 'Weekly' : 'Monthly'} Contribution
+            </Button>
+          )}
         </div>
       </CardContent>
     </Card>

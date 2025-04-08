@@ -1,220 +1,232 @@
 
-import React from 'react';
-import { 
-  ShoppingBag, Coffee, Car, Home, Gift, 
-  Utensils, Briefcase, Smartphone, PiggyBank, ArrowUpRight,
-  Wallet, DollarSign, ArrowRightLeft, Shield, ShieldCheck,
-  UserCheck, Send, HelpCircle, CreditCard
-} from 'lucide-react';
+import React, { useState } from 'react';
 import { cn } from '@/lib/utils';
+import { format } from 'date-fns';
+import { 
+  DollarSign, ShoppingBag, Coffee, Car, Home, Gift, 
+  Utensils, Briefcase, Smartphone, Plus, PiggyBank, 
+  ArrowRightLeft, Target, FileImage 
+} from 'lucide-react';
 import { Budget } from '@/services/financeService';
+import { 
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
-// Type for transaction data
 export interface Transaction {
   id: string;
-  date: string;
   description: string;
   amount: number;
   category: string;
+  date: string;
+  receipt_url?: string | null;
 }
 
 interface RecentTransactionsProps {
   transactions: Transaction[];
   budgets?: Budget[];
+  onCategoryClick?: (category: string) => void;
 }
 
-// Map of category to icon
-const categoryIcons: Record<string, React.ElementType> = {
-  // Expense categories
-  shopping: ShoppingBag,
-  food: Utensils,
-  coffee: Coffee,
-  transport: Car,
-  housing: Home,
-  gifts: Gift,
-  bills: CreditCard,
-  
-  // Income categories
-  salary: Briefcase,
-  allowance: Wallet,
-  "cash savings": PiggyBank,
-  "extra income": DollarSign,
-  "fund transfer": ArrowRightLeft,
-  "government aid": Shield,
-  insurance: ShieldCheck,
-  pension: UserCheck,
-  remittance: Send,
-  others: HelpCircle,
-  uncategorized: HelpCircle,
-  
-  // Special categories
-  income: ArrowUpRight,
-  "savings:regular": PiggyBank,
-  "savings:emergency": PiggyBank,
-  "savings:goal": PiggyBank,
-  savings: PiggyBank
-};
+const RecentTransactions: React.FC<RecentTransactionsProps> = ({ 
+  transactions,
+  budgets = [],
+  onCategoryClick
+}) => {
+  const [selectedReceiptUrl, setSelectedReceiptUrl] = useState<string | null>(null);
 
-// Map of category to background color
-const categoryColors: Record<string, string> = {
-  // Expense categories
-  shopping: 'bg-purple-100',
-  food: 'bg-orange-100',
-  coffee: 'bg-amber-100',
-  transport: 'bg-blue-100',
-  housing: 'bg-teal-100',
-  gifts: 'bg-pink-100',
-  bills: 'bg-gray-100',
-  
-  // Income categories
-  salary: 'bg-green-100',
-  allowance: 'bg-emerald-100',
-  "cash savings": 'bg-teal-100',
-  "extra income": 'bg-cyan-100',
-  "fund transfer": 'bg-sky-100',
-  "government aid": 'bg-blue-100',
-  insurance: 'bg-indigo-100',
-  pension: 'bg-violet-100',
-  remittance: 'bg-purple-100',
-  others: 'bg-gray-100',
-  uncategorized: 'bg-slate-100',
-  
-  // Special categories
-  income: 'bg-finance-income/10',
-  "savings:regular": 'bg-finance-saving/10',
-  "savings:emergency": 'bg-amber-100',
-  "savings:goal": 'bg-purple-100',
-  savings: 'bg-finance-saving/10'
-};
-
-const RecentTransactions: React.FC<RecentTransactionsProps> = ({ transactions, budgets = [] }) => {
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'PHP',
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    }).format(Math.abs(amount));
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(amount);
   };
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { 
-      month: 'short', 
-      day: 'numeric' 
-    });
-  };
-
-  // Find the related budget for a category
-  const findBudgetForCategory = (category: string) => {
-    return budgets.find(b => b.category.toLowerCase() === category.toLowerCase());
-  };
-
-  // Calculate budget percentage for a transaction
-  const getBudgetPercentage = (transaction: Transaction) => {
-    if (transaction.amount >= 0) return null; // Only for expenses
+  const getTransactionIcon = (category: string) => {
+    category = category.toLowerCase();
     
-    const budget = findBudgetForCategory(transaction.category);
-    if (!budget) return null;
-    
-    return Math.round((budget.spent / budget.allocated) * 100);
-  };
-
-  // Format savings category for display
-  const formatSavingsCategory = (category: string) => {
     if (category.startsWith('savings:')) {
-      const type = category.split(':')[1];
-      
-      switch (type) {
-        case 'regular':
-          return 'Regular Savings';
-        case 'emergency':
-          return 'Emergency Fund';
-        case 'goal':
-          return 'Goal-based Savings';
-        default:
-          return 'Savings';
+      if (category.includes('goal')) {
+        return <Target className="text-purple-500" />;
       }
+      return <PiggyBank className="text-green-500" />;
     }
     
-    return category.charAt(0).toUpperCase() + category.slice(1);
+    switch (category) {
+      case 'salary':
+      case 'income':
+        return <DollarSign className="text-green-500" />;
+      case 'shopping':
+        return <ShoppingBag className="text-purple-600" />;
+      case 'coffee':
+        return <Coffee className="text-amber-600" />;
+      case 'transport':
+        return <Car className="text-blue-500" />;
+      case 'housing':
+      case 'rent':
+        return <Home className="text-teal-500" />;
+      case 'gifts':
+        return <Gift className="text-pink-500" />;
+      case 'food':
+        return <Utensils className="text-orange-500" />;
+      case 'business':
+      case 'freelance':
+        return <Briefcase className="text-blue-700" />;
+      case 'entertainment':
+        return <Smartphone className="text-pink-500" />;
+      case 'transfer':
+        return <ArrowRightLeft className="text-gray-500" />;
+      default:
+        return <Plus className="text-gray-500" />;
+    }
+  };
+  
+  const getCategoryColor = (category: string) => {
+    const normalizedCategory = category.toLowerCase();
+    
+    // For income
+    if (normalizedCategory === 'salary' || 
+        normalizedCategory === 'income' ||
+        normalizedCategory === 'freelance' ||
+        normalizedCategory === 'business') {
+      return 'bg-green-100 text-green-800';
+    }
+    
+    // For savings
+    if (normalizedCategory.startsWith('savings:')) {
+      if (normalizedCategory.includes('emergency')) {
+        return 'bg-amber-100 text-amber-800';
+      }
+      if (normalizedCategory.includes('goal')) {
+        return 'bg-purple-100 text-purple-800';
+      }
+      return 'bg-green-100 text-green-800';
+    }
+    
+    // Try to find a matching budget
+    const matchingBudget = budgets.find(
+      budget => budget.category.toLowerCase() === normalizedCategory
+    );
+    
+    if (matchingBudget) {
+      // Use the budget's color if available
+      return matchingBudget.color.replace('bg-', 'bg-') + ' ' + 
+             matchingBudget.color.replace('bg-', 'text-').replace('-100', '-800');
+    }
+    
+    // Default for expenses
+    return 'bg-red-100 text-red-800';
   };
 
+  const viewReceipt = (url: string) => {
+    setSelectedReceiptUrl(url);
+  };
+
+  const closeReceiptModal = () => {
+    setSelectedReceiptUrl(null);
+  };
+
+  // Group transactions by category
+  const groupedTransactions = transactions.reduce((acc, transaction) => {
+    const category = transaction.category;
+    if (!acc[category]) {
+      acc[category] = [];
+    }
+    acc[category].push(transaction);
+    return acc;
+  }, {} as Record<string, Transaction[]>);
+
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h3 className="text-lg font-medium">Recent Transactions</h3>
-        <button className="text-sm text-primary font-medium">
-          View All
-        </button>
-      </div>
-
-      <div className="space-y-3">
-        {transactions.length === 0 ? (
-          <div className="text-center py-6 text-muted-foreground">
-            No transactions yet
-          </div>
-        ) : (
-          transactions.map((transaction) => {
-            const categoryKey = transaction.category.toLowerCase();
-            const Icon = categoryIcons[categoryKey] || ShoppingBag;
-            const bgColor = categoryColors[categoryKey] || 'bg-gray-100';
-            const isExpense = transaction.amount < 0;
-            const isSavings = transaction.category.toLowerCase().includes('savings');
-            const budgetPercentage = getBudgetPercentage(transaction);
-            const budget = isExpense ? findBudgetForCategory(transaction.category) : null;
-            const isOverBudget = budget && budget.spent > budget.allocated;
+    <div>
+      <h3 className="font-medium text-lg mb-4">Recent Transactions</h3>
+      
+      {transactions.length === 0 ? (
+        <div className="text-center p-6 bg-muted rounded-lg">
+          <p className="text-muted-foreground">No transactions yet</p>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {/* Show category cards instead of individual transactions */}
+          {Object.entries(groupedTransactions).map(([category, categoryTransactions]) => {
+            const isExpense = categoryTransactions[0].amount < 0;
+            const isSavings = category.startsWith('savings:');
+            const totalAmount = categoryTransactions.reduce(
+              (sum, t) => sum + t.amount, 
+              0
+            );
             
-            // Determine category display name
-            const categoryDisplay = isSavings 
-              ? formatSavingsCategory(transaction.category)
-              : transaction.category.charAt(0).toUpperCase() + transaction.category.slice(1);
-
             return (
-              <div
-                key={transaction.id}
-                className="flex flex-col p-3 rounded-xl bg-white shadow-subtle press-effect"
+              <div 
+                key={category} 
+                className="bg-card p-4 rounded-xl shadow-subtle transition-all hover:shadow-md active:scale-[0.98]"
+                onClick={() => onCategoryClick && onCategoryClick(category)}
               >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center">
-                    <div className={cn("w-10 h-10 rounded-lg flex items-center justify-center mr-3", bgColor)}>
-                      <Icon size={18} className="text-foreground opacity-75" />
+                <div className="flex items-start justify-between">
+                  <div className="flex gap-3">
+                    <div className={cn(
+                      "p-2 rounded-full",
+                      isExpense ? "bg-red-100 dark:bg-red-900/20" : 
+                      isSavings ? "bg-green-100 dark:bg-green-900/20" : "bg-blue-100 dark:bg-blue-900/20"
+                    )}>
+                      {getTransactionIcon(category)}
                     </div>
+                    
                     <div>
-                      <p className="font-medium text-sm">{transaction.description}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {formatDate(transaction.date)} 
-                        {isSavings && <span className="ml-1">• {categoryDisplay}</span>}
-                      </p>
+                      <h4 className="font-medium">
+                        {category.startsWith('savings:goal:')
+                          ? 'Savings Goal'
+                          : category.charAt(0).toUpperCase() + 
+                            category.slice(1).replace('savings:', '')}
+                      </h4>
+                      <div className="flex gap-2 mt-1">
+                        <span className={cn(
+                          "text-xs px-2 py-0.5 rounded-full",
+                          getCategoryColor(category)
+                        )}>
+                          {categoryTransactions.length} Transactions
+                        </span>
+                      </div>
                     </div>
                   </div>
+                  
                   <p className={cn(
-                    "font-medium",
-                    isExpense ? "text-finance-expense" : (
-                      isSavings ? "text-finance-saving" : "text-finance-income"
-                    )
+                    "font-semibold",
+                    isExpense ? "text-finance-expense" : 
+                    isSavings ? "text-finance-saving" : "text-finance-income"
                   )}>
-                    {isExpense ? "-" : "+"}{formatCurrency(transaction.amount)}
+                    {totalAmount < 0 ? '-' : '+'}{formatCurrency(Math.abs(totalAmount))}
                   </p>
                 </div>
-                
-                {budget && (
-                  <div className="mt-2 pl-13">
-                    <p className="text-xs text-muted-foreground">
-                      Budget: {formatCurrency(budget.allocated)} 
-                      {isOverBudget && (
-                        <span className="text-finance-expense ml-1">(Over budget)</span>
-                      )}
-                    </p>
-                  </div>
-                )}
               </div>
             );
-          })
-        )}
-      </div>
+          })}
+        </div>
+      )}
+      
+      {/* Receipt Image Modal */}
+      <Dialog open={selectedReceiptUrl !== null} onOpenChange={closeReceiptModal}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Receipt Image</DialogTitle>
+          </DialogHeader>
+          {selectedReceiptUrl && (
+            <div className="flex items-center justify-center p-2">
+              <img 
+                src={selectedReceiptUrl} 
+                alt="Receipt" 
+                className="max-w-full max-h-[70vh] object-contain rounded-md"
+              />
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
 
 export default RecentTransactions;
+

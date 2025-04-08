@@ -5,10 +5,11 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { 
   BellIcon, CreditCard, DollarSign, GlobeIcon, 
-  Lock, LogOut, User, ChevronRight
+  Lock, LogOut, User, ChevronRight, Moon, Sun
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/use-auth';
+import { useTheme } from '@/hooks/use-theme';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -52,6 +53,7 @@ const SettingsItem = ({
 
 const Settings = () => {
   const { user, signOut } = useAuth();
+  const { theme, setTheme } = useTheme();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -97,6 +99,10 @@ const Settings = () => {
     await signOut();
   };
 
+  const toggleTheme = () => {
+    setTheme(theme === 'light' ? 'dark' : 'light');
+  };
+
   return (
     <MobileLayout currentPage="settings">
       <header className="mb-6">
@@ -104,7 +110,7 @@ const Settings = () => {
         <p className="text-muted-foreground mt-1">Customize your experience</p>
       </header>
 
-      <Card className="bg-white shadow-subtle mb-6">
+      <Card className="bg-card shadow-subtle mb-6">
         <CardContent className="p-4">
           <div className="flex items-center">
             <Avatar className="w-14 h-14 mr-4">
@@ -126,7 +132,7 @@ const Settings = () => {
           <h2 className="text-sm font-semibold text-muted-foreground mb-2 px-1">
             PREFERENCES
           </h2>
-          <Card className="bg-white shadow-subtle divide-y">
+          <Card className="bg-card shadow-subtle divide-y">
             <CardContent className="p-4 pb-0">
               <SettingsItem 
                 icon={BellIcon} 
@@ -145,16 +151,23 @@ const Settings = () => {
               <div className="flex items-center justify-between py-3">
                 <div className="flex items-center">
                   <div className="w-10 h-10 flex items-center justify-center rounded-full bg-muted mr-3">
-                    <GlobeIcon size={20} className="text-muted-foreground" />
+                    {theme === 'dark' ? (
+                      <Moon size={20} className="text-muted-foreground" />
+                    ) : (
+                      <Sun size={20} className="text-muted-foreground" />
+                    )}
                   </div>
                   <div>
                     <p className="font-medium text-sm">Dark Mode</p>
                     <p className="text-xs text-muted-foreground">
-                      Use dark theme
+                      {theme === 'dark' ? 'Currently enabled' : 'Currently disabled'}
                     </p>
                   </div>
                 </div>
-                <Switch />
+                <Switch 
+                  checked={theme === 'dark'}
+                  onCheckedChange={toggleTheme}
+                />
               </div>
             </CardContent>
           </Card>
@@ -164,7 +177,7 @@ const Settings = () => {
           <h2 className="text-sm font-semibold text-muted-foreground mb-2 px-1">
             ACCOUNT
           </h2>
-          <Card className="bg-white shadow-subtle divide-y">
+          <Card className="bg-card shadow-subtle divide-y">
             <CardContent className="p-4 pb-0">
               <SettingsItem 
                 icon={User} 
@@ -183,7 +196,7 @@ const Settings = () => {
         </div>
 
         <div>
-          <Card className="bg-white shadow-subtle">
+          <Card className="bg-card shadow-subtle">
             <CardContent className="p-4">
               <SettingsItem 
                 icon={LogOut} 
