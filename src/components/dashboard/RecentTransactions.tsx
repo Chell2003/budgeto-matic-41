@@ -4,7 +4,7 @@ import { format } from 'date-fns';
 import { 
   DollarSign, ShoppingBag, Coffee, Car, Home, Gift, 
   Utensils, Briefcase, Smartphone, Plus, PiggyBank, 
-  ArrowRightLeft, Target, FileImage, Pencil
+  ArrowRightLeft, Target, FileImage
 } from 'lucide-react';
 import { Budget } from '@/services/financeService';
 import { 
@@ -13,7 +13,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import EditTransactionDialog from '../expenses/EditTransactionDialog';
 
 export interface Transaction {
   id: string;
@@ -38,7 +37,6 @@ const RecentTransactions: React.FC<RecentTransactionsProps> = ({
   onTransactionUpdated
 }) => {
   const [selectedReceiptUrl, setSelectedReceiptUrl] = useState<string | null>(null);
-  const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
@@ -131,16 +129,6 @@ const RecentTransactions: React.FC<RecentTransactionsProps> = ({
 
   const closeReceiptModal = () => {
     setSelectedReceiptUrl(null);
-  };
-
-  const handleEditTransaction = (transaction: Transaction) => {
-    setEditingTransaction(transaction);
-  };
-
-  const handleTransactionUpdated = () => {
-    if (onTransactionUpdated) {
-      onTransactionUpdated();
-    }
   };
 
   const budgetCategories = budgets.map(budget => {
@@ -242,17 +230,9 @@ const RecentTransactions: React.FC<RecentTransactionsProps> = ({
                           </button>
                         )}
                       </div>
-                      <div className="flex items-center space-x-2">
-                        <span className="text-sm font-medium">
-                          {transaction.amount < 0 ? '-' : '+'}{formatCurrency(Math.abs(transaction.amount))}
-                        </span>
-                        <button
-                          className="p-1 rounded-full hover:bg-muted"
-                          onClick={() => handleEditTransaction(transaction)}
-                        >
-                          <Pencil size={14} className="text-muted-foreground" />
-                        </button>
-                      </div>
+                      <span className="text-sm font-medium">
+                        {transaction.amount < 0 ? '-' : '+'}{formatCurrency(Math.abs(transaction.amount))}
+                      </span>
                     </div>
                   ))}
                 </div>
@@ -278,14 +258,6 @@ const RecentTransactions: React.FC<RecentTransactionsProps> = ({
           )}
         </DialogContent>
       </Dialog>
-
-      <EditTransactionDialog
-        isOpen={editingTransaction !== null}
-        onClose={() => setEditingTransaction(null)}
-        transaction={editingTransaction}
-        onTransactionUpdated={handleTransactionUpdated}
-        categories={budgetCategories}
-      />
     </div>
   );
 };
