@@ -1,10 +1,11 @@
+
 import React, { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { 
   DollarSign, ShoppingBag, Coffee, Car, Home, Gift, 
   Utensils, Briefcase, Smartphone, Plus, PiggyBank, 
-  ArrowRightLeft, Target, FileImage, Pencil
+  ArrowRightLeft, Target, FileImage 
 } from 'lucide-react';
 import { Budget } from '@/services/financeService';
 import { 
@@ -13,7 +14,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import EditTransactionDialog from '../expenses/EditTransactionDialog';
 
 export interface Transaction {
   id: string;
@@ -28,17 +28,14 @@ interface RecentTransactionsProps {
   transactions: Transaction[];
   budgets?: Budget[];
   onCategoryClick?: (category: string) => void;
-  onTransactionUpdated?: () => void;
 }
 
 const RecentTransactions: React.FC<RecentTransactionsProps> = ({ 
   transactions,
   budgets = [],
-  onCategoryClick,
-  onTransactionUpdated
+  onCategoryClick
 }) => {
   const [selectedReceiptUrl, setSelectedReceiptUrl] = useState<string | null>(null);
-  const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
@@ -133,27 +130,7 @@ const RecentTransactions: React.FC<RecentTransactionsProps> = ({
     setSelectedReceiptUrl(null);
   };
 
-  const handleEditTransaction = (transaction: Transaction) => {
-    setEditingTransaction(transaction);
-  };
-
-  const handleTransactionUpdated = () => {
-    if (onTransactionUpdated) {
-      onTransactionUpdated();
-    }
-  };
-
-  const budgetCategories = budgets.map(budget => {
-    const categoryKey = budget.category.toLowerCase();
-    
-    return {
-      id: budget.id,
-      name: budget.category,
-      icon: categoryKey,
-      color: budget.color
-    };
-  });
-
+  // Group transactions by category
   const groupedTransactions = transactions.reduce((acc, transaction) => {
     const category = transaction.category;
     if (!acc[category]) {
@@ -173,6 +150,7 @@ const RecentTransactions: React.FC<RecentTransactionsProps> = ({
         </div>
       ) : (
         <div className="space-y-3">
+          {/* Show category cards instead of individual transactions */}
           {Object.entries(groupedTransactions).map(([category, categoryTransactions]) => {
             const isExpense = categoryTransactions[0].amount < 0;
             const isSavings = category.startsWith('savings:');
@@ -184,7 +162,7 @@ const RecentTransactions: React.FC<RecentTransactionsProps> = ({
             return (
               <div 
                 key={category} 
-                className="bg-card dark:bg-gray-800 p-4 rounded-xl shadow-subtle transition-all hover:shadow-md active:scale-[0.98]"
+                className="bg-card p-4 rounded-xl shadow-subtle transition-all hover:shadow-md active:scale-[0.98]"
                 onClick={() => onCategoryClick && onCategoryClick(category)}
               >
                 <div className="flex items-start justify-between">
@@ -223,45 +201,13 @@ const RecentTransactions: React.FC<RecentTransactionsProps> = ({
                     {totalAmount < 0 ? '-' : '+'}{formatCurrency(Math.abs(totalAmount))}
                   </p>
                 </div>
-
-                <div className="mt-3 space-y-2">
-                  {categoryTransactions.map(transaction => (
-                    <div 
-                      key={transaction.id} 
-                      className="flex items-center justify-between px-3 py-2 bg-background dark:bg-gray-700/50 rounded-lg"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <div className="flex items-center space-x-2">
-                        <p className="text-sm">{transaction.description}</p>
-                        {transaction.receipt_url && (
-                          <button
-                            className="p-1 rounded-full hover:bg-muted"
-                            onClick={() => viewReceipt(transaction.receipt_url!)}
-                          >
-                            <FileImage size={14} className="text-muted-foreground" />
-                          </button>
-                        )}
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <span className="text-sm font-medium">
-                          {transaction.amount < 0 ? '-' : '+'}{formatCurrency(Math.abs(transaction.amount))}
-                        </span>
-                        <button
-                          className="p-1 rounded-full hover:bg-muted"
-                          onClick={() => handleEditTransaction(transaction)}
-                        >
-                          <Pencil size={14} className="text-muted-foreground" />
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
               </div>
             );
           })}
         </div>
       )}
       
+      {/* Receipt Image Modal */}
       <Dialog open={selectedReceiptUrl !== null} onOpenChange={closeReceiptModal}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
@@ -278,16 +224,9 @@ const RecentTransactions: React.FC<RecentTransactionsProps> = ({
           )}
         </DialogContent>
       </Dialog>
-
-      <EditTransactionDialog
-        isOpen={editingTransaction !== null}
-        onClose={() => setEditingTransaction(null)}
-        transaction={editingTransaction}
-        onTransactionUpdated={handleTransactionUpdated}
-        categories={budgetCategories}
-      />
     </div>
   );
 };
 
 export default RecentTransactions;
+

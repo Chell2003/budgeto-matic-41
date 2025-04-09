@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { Transaction } from "@/components/dashboard/RecentTransactions";
 
@@ -167,48 +168,6 @@ export const addTransaction = async (transaction: {
   
   if (error) {
     console.error('Error adding transaction:', error);
-    throw error;
-  }
-  
-  return data;
-};
-
-export const updateTransaction = async (transaction: {
-  id: string;
-  description: string;
-  amount: number;
-  category: string;
-}) => {
-  const { data: { user } } = await supabase.auth.getUser();
-  
-  if (!user) {
-    throw new Error('User must be logged in to update a transaction');
-  }
-
-  let transactionType;
-  if (transaction.category.startsWith('savings:')) {
-    transactionType = 'savings';
-  } else if (transaction.amount < 0) {
-    transactionType = 'expense';
-  } else {
-    transactionType = 'income';
-  }
-
-  const { data, error } = await supabase
-    .from('transactions')
-    .update({
-      description: transaction.description,
-      amount: transaction.amount,
-      category: transaction.category,
-      transaction_type: transactionType
-    })
-    .eq('id', transaction.id)
-    .eq('user_id', user.id) // Additional security to ensure user can only modify their own transactions
-    .select()
-    .single();
-  
-  if (error) {
-    console.error('Error updating transaction:', error);
     throw error;
   }
   

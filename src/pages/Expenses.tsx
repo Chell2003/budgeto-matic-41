@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import MobileLayout from '@/components/layout/MobileLayout';
 import ExpenseForm from '@/components/expenses/ExpenseForm';
@@ -41,13 +42,15 @@ const Expenses = () => {
         const budgetData = await getBudgets();
         setBudgets(budgetData);
         
+        // Use a consistent mapping from budgets to expense categories
+        // This ensures icons and colors match between budget and expense pages
         const categories = budgetData.map(budget => {
           const categoryKey = budget.category.toLowerCase();
           
           return {
             id: budget.id,
             name: budget.category,
-            icon: categoryKey,
+            icon: categoryKey, // Use the category key as the icon identifier
             color: budget.color
           };
         });
@@ -76,6 +79,7 @@ const Expenses = () => {
     receipt?: File;
   }) => {
     try {
+      // Add these console.log statements
       console.log('Transaction Details:', {
         amount: transaction.amount,
         description: transaction.description,
@@ -93,6 +97,7 @@ const Expenses = () => {
   
       console.log('Updated Budgets AFTER Transaction:', updatedBudgets);
   
+      // Optional: Find and log the matching budget
       const matchingBudget = updatedBudgets.find(
         budget => budget.category.toLowerCase() === transaction.category.toLowerCase()
       );
@@ -115,20 +120,6 @@ const Expenses = () => {
     } catch (error) {
       console.error('Error adding transaction:', error);
       toast.error('Failed to add transaction');
-    }
-  };
-
-  const handleTransactionUpdated = async () => {
-    try {
-      const updatedTransactions = await getTransactions();
-      const updatedBudgets = await getBudgets();
-      
-      setTransactions(updatedTransactions);
-      setBudgets(updatedBudgets);
-      
-      toast.success('Transaction updated successfully');
-    } catch (error) {
-      console.error('Error refreshing data:', error);
     }
   };
 
@@ -222,7 +213,6 @@ const Expenses = () => {
           <RecentTransactions 
             transactions={transactions} 
             budgets={budgets}
-            onTransactionUpdated={handleTransactionUpdated}
           />
         )}
       </div>
