@@ -30,6 +30,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import AmountInput from '@/components/common/AmountInput';
 import { addBudget } from '@/services/financeService';
+import BudgetCalculator from './BudgetCalculator';
 
 // Predefined budget categories - aligned with expense categories
 const BUDGET_CATEGORIES = [
@@ -93,6 +94,10 @@ const CreateBudgetDialog: React.FC<CreateBudgetDialogProps> = ({ onBudgetCreated
     }
   };
 
+  const handleCalculatedAmount = (amount: number) => {
+    form.setValue('allocated', amount);
+  };
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
@@ -141,14 +146,17 @@ const CreateBudgetDialog: React.FC<CreateBudgetDialogProps> = ({ onBudgetCreated
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Budget Amount</FormLabel>
-                  <FormControl>
-                    <AmountInput
-                      value={field.value}
-                      onChange={field.onChange}
-                      placeholder="0.00"
-                      isExpense={false}
-                    />
-                  </FormControl>
+                  <div className="relative">
+                    <FormControl>
+                      <AmountInput
+                        value={field.value}
+                        onChange={field.onChange}
+                        placeholder="0.00"
+                        isExpense={false}
+                      />
+                    </FormControl>
+                    <BudgetCalculator onCalculated={handleCalculatedAmount} />
+                  </div>
                   <FormMessage />
                 </FormItem>
               )}
