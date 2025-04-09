@@ -105,7 +105,7 @@ const CreateBudgetDialog: React.FC<CreateBudgetDialogProps> = ({ onBudgetCreated
           + Add Budget Category
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[400px]">
+      <DialogContent className="sm:max-w-[400px] dark:border-border dark:bg-card">
         <DialogHeader>
           <DialogTitle>Create New Budget</DialogTitle>
         </DialogHeader>
@@ -123,10 +123,10 @@ const CreateBudgetDialog: React.FC<CreateBudgetDialogProps> = ({ onBudgetCreated
                       onValueChange={field.onChange} 
                       value={field.value}
                     >
-                      <SelectTrigger className="bg-white">
+                      <SelectTrigger className="bg-white dark:bg-background">
                         <SelectValue placeholder="Select a category" />
                       </SelectTrigger>
-                      <SelectContent className="bg-white">
+                      <SelectContent className="bg-white dark:bg-background dark:border-border">
                         {BUDGET_CATEGORIES.map((category) => (
                           <SelectItem key={category} value={category}>
                             {category}

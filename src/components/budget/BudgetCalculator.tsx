@@ -48,7 +48,7 @@ const BudgetCalculator: React.FC<BudgetCalculatorProps> = ({ onCalculated }) => 
           <Calculator size={18} />
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[400px]">
+      <DialogContent className="sm:max-w-[400px] dark:border-border dark:bg-card">
         <DialogHeader>
           <DialogTitle>Budget Calculator</DialogTitle>
         </DialogHeader>
@@ -61,7 +61,7 @@ const BudgetCalculator: React.FC<BudgetCalculatorProps> = ({ onCalculated }) => 
               value={dailyAmount}
               onChange={(e) => setDailyAmount(e.target.value)}
               placeholder="Enter daily amount" 
-              className="bg-white"
+              className="bg-white dark:bg-background"
             />
           </div>
           
@@ -72,7 +72,7 @@ const BudgetCalculator: React.FC<BudgetCalculatorProps> = ({ onCalculated }) => 
               value={daysPerMonth}
               onChange={(e) => setDaysPerMonth(e.target.value)}
               placeholder="30" 
-              className="bg-white"
+              className="bg-white dark:bg-background"
             />
           </div>
           
@@ -85,7 +85,7 @@ const BudgetCalculator: React.FC<BudgetCalculatorProps> = ({ onCalculated }) => 
           </Button>
           
           {monthlyTotal !== null && (
-            <div className="mt-4 p-3 bg-muted rounded-md">
+            <div className="mt-4 p-3 bg-muted rounded-md dark:bg-muted/10">
               <p className="text-sm text-muted-foreground">Monthly Budget:</p>
               <p className="text-lg font-bold">₱{monthlyTotal.toFixed(2)}</p>
             </div>
