@@ -95,6 +95,7 @@ const EditTransactionDialog: React.FC<EditTransactionDialogProps> = ({
               value={amount} 
               onChange={setAmount} 
               placeholder="Amount"
+              required
             />
           </div>
 
