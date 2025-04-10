@@ -203,16 +203,16 @@ const RecentTransactions: React.FC<RecentTransactionsProps> = ({
                     </div>
                   </div>
                   
-                  {/* <p className={cn(
+                  <p className={cn(
                     "font-semibold",
                     isExpense ? "text-finance-expense" : 
                     isSavings ? "text-finance-saving" : "text-finance-income"
                   )}>
                     {totalAmount < 0 ? '-' : '+'}{formatCurrency(Math.abs(totalAmount))}
-                  </p> */}
+                  </p>
                 </div>
 
-                <div className="mt-3 space-y-2">
+                {/* <div className="mt-3 space-y-2">
                   {categoryTransactions.map(transaction => (
                     <div 
                       key={transaction.id} 
@@ -235,7 +235,7 @@ const RecentTransactions: React.FC<RecentTransactionsProps> = ({
                       </span>
                     </div>
                   ))}
-                </div>
+                </div> */}
               </div>
             );
           })}
