@@ -1,9 +1,10 @@
+
 import React, { useState, useEffect } from 'react';
 import MobileLayout from '@/components/layout/MobileLayout';
 import ExpenseForm from '@/components/expenses/ExpenseForm';
 import RecentTransactions from '@/components/dashboard/RecentTransactions';
 import { getTransactions, addTransaction, getBudgets } from '@/services/financeService';
-import { toast } from 'sonner';
+import { toast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/use-auth';
 import { Progress } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
@@ -29,7 +30,11 @@ const Expenses = () => {
         setTransactions(data);
       } catch (error) {
         console.error('Error fetching transactions:', error);
-        toast.error('Failed to load transactions');
+        toast({
+          title: "Error",
+          description: 'Failed to load transactions',
+          variant: "destructive",
+        });
       } finally {
         setIsLoading(false);
       }
@@ -56,7 +61,11 @@ const Expenses = () => {
         setBudgetCategories(categories);
       } catch (error) {
         console.error('Error fetching budgets:', error);
-        toast.error('Failed to load budget data');
+        toast({
+          title: "Error",
+          description: 'Failed to load budget data',
+          variant: "destructive",
+        });
       } finally {
         setIsBudgetLoading(false);
       }
@@ -111,10 +120,17 @@ const Expenses = () => {
         transactionType = 'Income';
       }
       
-      toast.success(`${transactionType} added successfully`);
+      toast({
+        title: "Success",
+        description: `${transactionType} added successfully`,
+      });
     } catch (error) {
       console.error('Error adding transaction:', error);
-      toast.error('Failed to add transaction');
+      toast({
+        title: "Error",
+        description: 'Failed to add transaction',
+        variant: "destructive",
+      });
     }
   };
 
@@ -126,7 +142,10 @@ const Expenses = () => {
       setTransactions(updatedTransactions);
       setBudgets(updatedBudgets);
       
-      toast.success('Transaction updated successfully');
+      toast({
+        title: "Success",
+        description: 'Transaction updated successfully',
+      });
     } catch (error) {
       console.error('Error refreshing data:', error);
     }

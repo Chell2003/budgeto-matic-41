@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { cn } from '@/lib/utils';
 import { SavingsGoal, addTransaction } from '@/services/financeService';
@@ -7,7 +6,7 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { PiggyBank, Calendar, Target, Coins, Plus } from 'lucide-react';
 import { format } from 'date-fns';
 import { Button } from '@/components/ui/button';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from '@/hooks/use-toast';
 
 interface SavingsGoalCardProps {
   goal: SavingsGoal;
@@ -15,7 +14,6 @@ interface SavingsGoalCardProps {
 }
 
 const SavingsGoalCard: React.FC<SavingsGoalCardProps> = ({ goal, onUpdate }) => {
-  const { toast } = useToast();
   
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
