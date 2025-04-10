@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
@@ -172,7 +173,7 @@ const RecentTransactions: React.FC<RecentTransactionsProps> = ({
             return (
               <div 
                 key={category} 
-                className="bg-card dark:bg-gray-800 p-4 rounded-xl shadow-subtle transition-all hover:shadow-md active:scale-[0.98]"
+                className="bg-card dark:bg-gray-800 p-4 rounded-xl shadow-subtle transition-all hover:shadow-md active:scale-[0.98] cursor-pointer"
                 onClick={() => onCategoryClick && onCategoryClick(category)}
               >
                 <div className="flex items-start justify-between">
@@ -212,7 +213,8 @@ const RecentTransactions: React.FC<RecentTransactionsProps> = ({
                   </p>
                 </div>
 
-                {/* <div className="mt-3 space-y-2">
+                {/* Uncomment this section to show transaction details */}
+                <div className="mt-3 space-y-2">
                   {categoryTransactions.map(transaction => (
                     <div 
                       key={transaction.id} 
@@ -235,7 +237,7 @@ const RecentTransactions: React.FC<RecentTransactionsProps> = ({
                       </span>
                     </div>
                   ))}
-                </div> */}
+                </div>
               </div>
             );
           })}

@@ -1,5 +1,5 @@
-
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import MobileLayout from '@/components/layout/MobileLayout';
 import ExpenseForm from '@/components/expenses/ExpenseForm';
 import RecentTransactions from '@/components/dashboard/RecentTransactions';
@@ -21,6 +21,7 @@ const Expenses = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isBudgetLoading, setIsBudgetLoading] = useState(true);
   const { user } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchTransactions = async () => {
@@ -164,6 +165,10 @@ const Expenses = () => {
     return budgets.find(b => b.category.toLowerCase() === category.toLowerCase());
   };
 
+  const handleCategoryClick = (category: string) => {
+    navigate(`/category/${encodeURIComponent(category)}`);
+  };
+
   return (
     <MobileLayout currentPage="expenses">
       <header className="mb-6">
@@ -242,6 +247,7 @@ const Expenses = () => {
             transactions={transactions} 
             budgets={budgets}
             onTransactionUpdated={handleTransactionUpdated}
+            onCategoryClick={handleCategoryClick}
           />
         )}
       </div>
