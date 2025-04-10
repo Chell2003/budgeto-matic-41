@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
 
@@ -17,24 +16,23 @@ interface BudgetChartProps {
   totalSpent: number;
 }
 
-// Map of category to color hex values - ensuring consistency with CategorySelector
 const categoryColorHex: Record<string, string> = {
-  shopping: '#e0bbf5', // lavender
-  food: '#ffb347',     // apricot
-  coffee: '#d2691e',   // chocolate
-  transport: '#1e90ff', // dodger blue
-  housing: '#20b2aa',   // light sea green
-  rent: '#6495ed',      // cornflower blue
-  utilities: '#4682b4', // steel blue
-  entertainment: '#ff69b4', // hot pink
-  groceries: '#ffcc00',     // carrot orange
-  healthcare: '#98fb98',    // pale green
-  education: '#8a2be2',     // blue violet
-  "personal care": '#dda0dd', // plum
-  bills: '#b0c4de',          // light steel blue
-  gifts: '#ff69b4',          // hot pink
-  other: '#708090',          // slate gray
-  miscellaneous: '#ff7f50'   // coral
+  shopping: '#e0bbf5',
+  food: '#ffb347',
+  coffee: '#d2691e',
+  transport: '#1e90ff',
+  housing: '#20b2aa',
+  rent: '#6495ed',
+  utilities: '#4682b4',
+  entertainment: '#ff69b4',
+  groceries: '#ffcc00',
+  healthcare: '#98fb98',
+  education: '#8a2be2',
+  "personal care": '#dda0dd',
+  bills: '#b0c4de',
+  gifts: '#ff69b4',
+  other: '#708090',
+  miscellaneous: '#ff7f50'
 };
 
 const BudgetChart: React.FC<BudgetChartProps> = ({ 
@@ -43,11 +41,8 @@ const BudgetChart: React.FC<BudgetChartProps> = ({
   totalSpent
 }) => {
   const data = budgetCategories.map((category) => {
-    // Get the category name, handling both possible properties
     const categoryName = category.category || category.name || '';
-    // Convert category name to lowercase for consistent mapping
     const categoryKey = categoryName.toLowerCase();
-    // Use the color from our map, or fall back to the category's color or a default
     const colorHex = categoryColorHex[categoryKey] || category.color || '#64748b';
     
     return {
@@ -69,10 +64,10 @@ const BudgetChart: React.FC<BudgetChartProps> = ({
   const percentageSpent = Math.min(Math.round((totalSpent / totalBudget) * 100), 100);
 
   return (
-    <div className="bg-white rounded-2xl p-5 shadow-subtle flex flex-col items-center">
+    <div className="bg-white dark:bg-background/80 rounded-2xl p-5 shadow-subtle flex flex-col items-center">
       <div className="text-center mb-2">
-        <h3 className="text-lg font-semibold mb-1">Monthly Budget</h3>
-        <p className="text-sm text-muted-foreground">
+        <h3 className="text-lg font-semibold mb-1 dark:text-white">Monthly Budget</h3>
+        <p className="text-sm text-muted-foreground dark:text-muted-foreground/80">
           {formatCurrency(totalSpent)} of {formatCurrency(totalBudget)} used
         </p>
       </div>
@@ -102,14 +97,14 @@ const BudgetChart: React.FC<BudgetChartProps> = ({
         </div>
       </div>
 
-      <div className="mt-4 w-full flex justify-between text-sm border-t pt-4">
+      <div className="mt-4 w-full flex justify-between text-sm border-t border-border/20 dark:border-border/30 pt-4">
         <div>
-          <p className="text-muted-foreground">Remaining</p>
-          <p className="font-semibold">{formatCurrency(remainingBudget)}</p>
+          <p className="text-muted-foreground dark:text-muted-foreground/80">Remaining</p>
+          <p className="font-semibold dark:text-white">{formatCurrency(remainingBudget)}</p>
         </div>
         <div className="text-right">
-          <p className="text-muted-foreground">Next Reset</p>
-          <p className="font-semibold">24 days</p>
+          <p className="text-muted-foreground dark:text-muted-foreground/80">Next Reset</p>
+          <p className="font-semibold dark:text-white">24 days</p>
         </div>
       </div>
     </div>

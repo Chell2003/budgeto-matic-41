@@ -81,7 +81,7 @@ const BudgetList: React.FC<BudgetListProps> = ({
         return (
           <div 
             key={category.id}
-            className="bg-white p-4 rounded-xl shadow-subtle press-effect"
+            className="bg-white dark:bg-background/80 p-4 rounded-xl shadow-subtle press-effect"
             onClick={() => onSelectCategory && onSelectCategory(category.id)}
           >
             <div className="flex justify-between items-center mb-1">
@@ -89,15 +89,15 @@ const BudgetList: React.FC<BudgetListProps> = ({
                 <div className={cn("w-8 h-8 rounded-full flex items-center justify-center mr-3", bgColor)}>
                   <Icon size={16} className="text-foreground opacity-75" />
                 </div>
-                <h4 className="font-medium">{category.category}</h4>
+                <h4 className="font-medium dark:text-white">{category.category}</h4>
               </div>
               <div className="text-right">
-                <p className="text-sm font-semibold">
+                <p className="text-sm font-semibold dark:text-white">
                   {formatCurrency(category.spent)} / {formatCurrency(category.allocated)}
                 </p>
                 <p className={cn(
                   "text-xs font-medium",
-                  isOverBudget ? "text-finance-expense" : "text-muted-foreground"
+                  isOverBudget ? "text-finance-expense" : "text-muted-foreground dark:text-muted-foreground/80"
                 )}>
                   {isOverBudget ? 'Over budget' : `${percentUsed}% used`}
                 </p>
@@ -108,7 +108,7 @@ const BudgetList: React.FC<BudgetListProps> = ({
               value={Math.min(percentUsed, 100)} 
               className={cn(
                 "h-2 mt-2",
-                isOverBudget ? "bg-red-100" : "bg-gray-100",
+                isOverBudget ? "bg-red-100 dark:bg-red-900/30" : "bg-gray-100 dark:bg-gray-800",
                 isOverBudget && "[&>div]:bg-finance-expense"
               )}
             />
