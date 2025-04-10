@@ -1,13 +1,12 @@
 
 import React, { useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
 import { updateTransaction } from "@/services/financeService";
 import { Transaction } from "@/components/dashboard/RecentTransactions";
-import CategorySelector, { ExpenseCategory } from '@/components/expenses/CategorySelector';
 import AmountInput from '@/components/common/AmountInput';
 
 interface EditTransactionDialogProps {
@@ -15,7 +14,6 @@ interface EditTransactionDialogProps {
   onClose: () => void;
   transaction: Transaction | null;
   onTransactionUpdated: () => void;
-  categories: ExpenseCategory[];
 }
 
 const EditTransactionDialog: React.FC<EditTransactionDialogProps> = ({
@@ -23,18 +21,15 @@ const EditTransactionDialog: React.FC<EditTransactionDialogProps> = ({
   onClose,
   transaction,
   onTransactionUpdated,
-  categories,
 }) => {
   const [description, setDescription] = useState("");
   const [amount, setAmount] = useState<number>(0);
-  const [category, setCategory] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     if (transaction) {
       setDescription(transaction.description);
       setAmount(Math.abs(transaction.amount));
-      setCategory(transaction.category);
     }
   }, [transaction]);
 
@@ -56,7 +51,7 @@ const EditTransactionDialog: React.FC<EditTransactionDialogProps> = ({
         id: transaction.id,
         description,
         amount: finalAmount,
-        category,
+        category: transaction.category, // Keep the original category, don't allow editing
       });
       
       toast({
@@ -82,6 +77,9 @@ const EditTransactionDialog: React.FC<EditTransactionDialogProps> = ({
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Edit Transaction</DialogTitle>
+          <DialogDescription>
+            Update the description and amount of this transaction.
+          </DialogDescription>
         </DialogHeader>
         
         <form onSubmit={handleSubmit} className="space-y-4 pt-4">
@@ -107,11 +105,9 @@ const EditTransactionDialog: React.FC<EditTransactionDialogProps> = ({
 
           <div className="space-y-2">
             <Label>Category</Label>
-            <CategorySelector
-              selectedCategory={category}
-              onSelectCategory={setCategory}
-              categories={categories}
-            />
+            <div className="p-2 border rounded-md bg-muted/50">
+              {transaction?.category}
+            </div>
           </div>
 
           <DialogFooter className="pt-4">
