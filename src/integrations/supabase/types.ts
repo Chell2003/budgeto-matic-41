@@ -118,6 +118,7 @@ export type Database = {
           created_at: string
           description: string
           id: string
+          receipt_url: string | null
           transaction_date: string
           transaction_type: string
           user_id: string
@@ -128,6 +129,7 @@ export type Database = {
           created_at?: string
           description: string
           id?: string
+          receipt_url?: string | null
           transaction_date?: string
           transaction_type: string
           user_id: string
@@ -138,6 +140,7 @@ export type Database = {
           created_at?: string
           description?: string
           id?: string
+          receipt_url?: string | null
           transaction_date?: string
           transaction_type?: string
           user_id?: string

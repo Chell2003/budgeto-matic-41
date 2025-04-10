@@ -4,7 +4,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { toast } from "sonner";
+import { toast } from "@/hooks/use-toast";
 import { updateTransaction } from "@/services/financeService";
 import { Transaction } from "@/components/dashboard/RecentTransactions";
 import CategorySelector, { ExpenseCategory } from '@/components/expenses/CategorySelector';
@@ -59,12 +59,19 @@ const EditTransactionDialog: React.FC<EditTransactionDialogProps> = ({
         category,
       });
       
-      toast.success("Transaction updated successfully");
+      toast({
+        title: "Success",
+        description: "Transaction updated successfully"
+      });
       onTransactionUpdated();
       onClose();
     } catch (error) {
       console.error("Error updating transaction:", error);
-      toast.error("Failed to update transaction");
+      toast({
+        title: "Error",
+        description: "Failed to update transaction",
+        variant: "destructive"
+      });
     } finally {
       setIsSubmitting(false);
     }
