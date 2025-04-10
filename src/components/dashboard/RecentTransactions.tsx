@@ -214,7 +214,7 @@ const RecentTransactions: React.FC<RecentTransactionsProps> = ({
                 </div>
 
                 {/* Uncomment this section to show transaction details */}
-                <div className="mt-3 space-y-2">
+                {/* <div className="mt-3 space-y-2">
                   {categoryTransactions.map(transaction => (
                     <div 
                       key={transaction.id} 
@@ -237,7 +237,7 @@ const RecentTransactions: React.FC<RecentTransactionsProps> = ({
                       </span>
                     </div>
                   ))}
-                </div>
+                </div> */}
               </div>
             );
           })}
