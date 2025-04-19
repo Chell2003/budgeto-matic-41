@@ -1,22 +1,21 @@
-
 import React, { useState, useEffect } from 'react';
 import MobileLayout from '@/components/layout/MobileLayout';
 import BudgetChart from '@/components/budget/BudgetChart';
 import BudgetList from '@/components/budget/BudgetList';
-import { getBudgets } from '@/services/financeService';
+import { getBudgets, getFinancialSummary } from '@/services/financeService';
 import { toast } from 'sonner';
 import { useAuth } from '@/hooks/use-auth';
 
 const Budget = () => {
   const [budgetCategories, setBudgetCategories] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [financialSummary, setFinancialSummary] = useState(null);
   const { user } = useAuth();
 
   const fetchBudgets = async () => {
     try {
       setIsLoading(true);
       const data = await getBudgets();
-      console.log('Fetched budget data:', data); // Log the budget data
       setBudgetCategories(data);
     } catch (error) {
       console.error('Error fetching budgets:', error);
@@ -26,8 +25,19 @@ const Budget = () => {
     }
   };
 
+  const fetchFinancialSummary = async () => {
+    try {
+      const summary = await getFinancialSummary();
+      setFinancialSummary(summary);
+    } catch (error) {
+      console.error('Error fetching financial summary:', error);
+      toast.error('Failed to load financial summary');
+    }
+  };
+
   useEffect(() => {
     if (user) {
+      fetchFinancialSummary();
       fetchBudgets();
     }
   }, [user]);
@@ -35,6 +45,28 @@ const Budget = () => {
   // Calculate total budget and total spent
   const totalBudget = budgetCategories.reduce((sum, category) => sum + category.allocated, 0);
   const totalSpent = budgetCategories.reduce((sum, category) => sum + category.spent, 0);
+
+  if (!financialSummary || financialSummary.income <= 0) {
+    return (
+      <MobileLayout currentPage="budget">
+        <header className="mb-6">
+          <h1 className="text-2xl font-bold">Budget</h1>
+          <p className="text-muted-foreground mt-1">Track your spending limits</p>
+        </header>
+        <div className="text-center py-12">
+          <p className="text-muted-foreground mb-4">
+            You need to set your income first before creating a budget.
+          </p>
+          <button
+            onClick={() => toast.info('Navigate to the income setup page.')}
+            className="bg-primary text-white px-4 py-2 rounded-md"
+          >
+            Set Income
+          </button>
+        </div>
+      </MobileLayout>
+    );
+  }
 
   return (
     <MobileLayout currentPage="budget">
