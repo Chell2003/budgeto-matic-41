@@ -14,10 +14,8 @@ export interface SavingsGoal {
   name: string;
   target_amount: number;
   current_amount: number;
-  start_date: string;
   target_date: string;
   frequency: 'weekly' | 'monthly' | 'none';
-  category: string;
   created_at: string;
   updated_at: string;
   progress: number;
@@ -28,6 +26,7 @@ export interface SavingsGoal {
     weeks: number;
     months: number;
   };
+  user_id: string;
 }
 
 const categoryColors: Record<string, string> = {

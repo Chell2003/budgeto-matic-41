@@ -14,7 +14,6 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { supabase } from '@/integrations/supabase/client';
 
 interface Profile {
-  username: string | null;
   full_name: string | null;
   avatar_url: string | null;
 }
@@ -65,7 +64,7 @@ const Settings = () => {
         setLoading(true);
         const { data, error } = await supabase
           .from('profiles')
-          .select('username, full_name, avatar_url')
+          .select('full_name, avatar_url')
           .eq('id', user.id)
           .single();
           
@@ -120,7 +119,7 @@ const Settings = () => {
               </AvatarFallback>
             </Avatar>
             <div>
-              <h2 className="font-medium">{profile?.full_name || profile?.username || 'User'}</h2>
+              <h2 className="font-medium">{profile?.full_name || 'User'}</h2>
               <p className="text-sm text-muted-foreground">{user?.email}</p>
             </div>
           </div>
