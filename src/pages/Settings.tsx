@@ -12,10 +12,12 @@ import { useAuth } from '@/hooks/use-auth';
 import { useTheme } from '@/hooks/use-theme';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { supabase } from '@/integrations/supabase/client';
+import IncomeSourceSelector from '@/components/settings/IncomeSourceSelector';
 
 interface Profile {
   full_name: string | null;
   avatar_url: string | null;
+  income_source: string | null;
 }
 
 const SettingsItem = ({ 
@@ -64,7 +66,7 @@ const Settings = () => {
         setLoading(true);
         const { data, error } = await supabase
           .from('profiles')
-          .select('full_name, avatar_url')
+          .select('full_name, avatar_url, income_source')
           .eq('id', user.id)
           .single();
           
@@ -102,6 +104,25 @@ const Settings = () => {
     setTheme(theme === 'light' ? 'dark' : 'light');
   };
 
+  const handleIncomeSourceChange = async (incomeSource: string) => {
+    if (!user) return;
+    
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ income_source: incomeSource })
+        .eq('id', user.id);
+      
+      if (error) {
+        throw error;
+      }
+      
+      setProfile(prev => prev ? {...prev, income_source: incomeSource} : null);
+    } catch (error) {
+      console.error('Error updating income source:', error);
+    }
+  };
+
   return (
     <MobileLayout currentPage="settings">
       <header className="mb-6">
@@ -127,6 +148,20 @@ const Settings = () => {
       </Card>
 
       <div className="space-y-6">
+        <div>
+          <h2 className="text-sm font-semibold text-muted-foreground mb-2 px-1">
+            FINANCE SETTINGS
+          </h2>
+          <Card className="bg-card shadow-subtle divide-y">
+            <CardContent className="p-4">
+              <IncomeSourceSelector 
+                currentSource={profile?.income_source || ''} 
+                onSourceChange={handleIncomeSourceChange} 
+              />
+            </CardContent>
+          </Card>
+        </div>
+
         <div>
           <h2 className="text-sm font-semibold text-muted-foreground mb-2 px-1">
             PREFERENCES

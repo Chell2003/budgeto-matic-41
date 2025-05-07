@@ -42,12 +42,34 @@ export type Database = {
         }
         Relationships: []
       }
+      income_categories: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
           created_at: string
           full_name: string | null
           id: string
+          income_source: string | null
           monthly_income: number | null
           updated_at: string
         }
@@ -56,6 +78,7 @@ export type Database = {
           created_at?: string
           full_name?: string | null
           id: string
+          income_source?: string | null
           monthly_income?: number | null
           updated_at?: string
         }
@@ -64,8 +87,36 @@ export type Database = {
           created_at?: string
           full_name?: string | null
           id?: string
+          income_source?: string | null
           monthly_income?: number | null
           updated_at?: string
+        }
+        Relationships: []
+      }
+      savings_allocations: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          percentage: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          percentage: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          percentage?: number
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }

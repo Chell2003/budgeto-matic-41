@@ -6,6 +6,7 @@ export interface Budget {
   category: string;
   allocated: number;
   spent: number;
+  percentage: number;
   color: string;
 }
 
@@ -43,6 +44,7 @@ const categoryColors: Record<string, string> = {
   "personal care": 'bg-violet-100',
   bills: 'bg-gray-100',
   gifts: 'bg-pink-100',
+  savings: 'bg-emerald-100',
   other: 'bg-slate-100',
   miscellaneous: 'bg-coral-100'
 };
@@ -116,6 +118,17 @@ export const addTransaction = async (transaction: {
   
   if (!user) {
     throw new Error('User must be logged in to add a transaction');
+  }
+
+  // Check if this is an expense and if budgets exist
+  if (transaction.amount < 0) {
+    const { count } = await supabase
+      .from('budgets')
+      .select('id', { count: 'exact', head: true });
+    
+    if (count === 0) {
+      throw new Error('You must create a budget before adding expenses');
+    }
   }
 
   const normalizedCategory = transaction.category.trim().toLowerCase();
@@ -219,6 +232,10 @@ export const getBudgets = async () => {
   const currentMonth = currentDate.getMonth() + 1;
   const currentYear = currentDate.getFullYear();
 
+  // Get income for percentage calculation
+  const summary = await getFinancialSummary();
+  const monthlyIncome = summary.income;
+
   const { data: budgets, error: budgetsError } = await supabase
     .from('budgets')
     .select('*')
@@ -258,10 +275,18 @@ export const getBudgets = async () => {
 
   return budgets.map(budget => {
     const normalizedBudgetCategory = budget.category.trim().toLowerCase();
+    
+    // Calculate allocated amount based on percentage of income
+    let allocatedAmount = budget.allocated;
+    if (monthlyIncome > 0 && budget.percentage) {
+      allocatedAmount = (budget.percentage / 100) * monthlyIncome;
+    }
+    
     return {
       id: budget.id,
       category: budget.category,
-      allocated: Number(budget.allocated),
+      allocated: allocatedAmount,
+      percentage: budget.percentage || 0,
       spent: spendingByCategory[normalizedBudgetCategory] || 0,
       color: categoryColors[normalizedBudgetCategory] || 'gray'
     };
@@ -271,6 +296,7 @@ export const getBudgets = async () => {
 export const addBudget = async (budget: {
   category: string;
   allocated: number;
+  percentage: number;
 }) => {
   const currentDate = new Date();
   const currentMonth = currentDate.getMonth() + 1;
@@ -282,12 +308,26 @@ export const addBudget = async (budget: {
     throw new Error('User must be logged in to add a budget');
   }
 
+  // Check total allocated percentage
+  const { data: existingBudgets } = await supabase
+    .from('budgets')
+    .select('percentage')
+    .eq('month', currentMonth)
+    .eq('year', currentYear);
+
+  const totalAllocatedPercentage = existingBudgets?.reduce((sum, item) => sum + (item.percentage || 0), 0) || 0;
+  
+  if (totalAllocatedPercentage + budget.percentage > 100) {
+    throw new Error(`Cannot allocate more than 100% of income. ${(100 - totalAllocatedPercentage).toFixed(1)}% remaining.`);
+  }
+
   const { data, error } = await supabase
     .from('budgets')
     .insert({
       user_id: user.id,
       category: budget.category,
       allocated: budget.allocated,
+      percentage: budget.percentage,
       month: currentMonth,
       year: currentYear
     })
@@ -467,5 +507,122 @@ export const deleteSavingsGoal = async (goalId: string) => {
     throw error;
   }
 
+  return true;
+};
+
+// New function to get savings allocations
+export const getSavingsAllocations = async () => {
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  if (!user) {
+    throw new Error('User must be logged in to get savings allocations');
+  }
+
+  const { data, error } = await supabase
+    .from('savings_allocations')
+    .select('*')
+    .eq('user_id', user.id);
+
+  if (error) {
+    console.error('Error fetching savings allocations:', error);
+    throw error;
+  }
+
+  return data;
+};
+
+// New function to add a savings allocation
+export const addSavingsAllocation = async (allocation: {
+  name: string;
+  percentage: number;
+}) => {
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  if (!user) {
+    throw new Error('User must be logged in to add a savings allocation');
+  }
+
+  // Check total allocated percentage
+  const { data: existingAllocations } = await supabase
+    .from('savings_allocations')
+    .select('percentage')
+    .eq('user_id', user.id);
+
+  const totalAllocatedPercentage = existingAllocations?.reduce((sum, item) => sum + item.percentage, 0) || 0;
+  
+  if (totalAllocatedPercentage + allocation.percentage > 100) {
+    throw new Error(`Cannot allocate more than 100% of savings. ${(100 - totalAllocatedPercentage).toFixed(1)}% remaining.`);
+  }
+
+  const { data, error } = await supabase
+    .from('savings_allocations')
+    .insert({
+      user_id: user.id,
+      name: allocation.name,
+      percentage: allocation.percentage,
+      updated_at: new Date().toISOString()
+    })
+    .select()
+    .single();
+  
+  if (error) {
+    console.error('Error adding savings allocation:', error);
+    throw error;
+  }
+  
+  return data;
+};
+
+// New function to update a savings allocation
+export const updateSavingsAllocation = async (allocation: {
+  id: string;
+  name: string;
+  percentage: number;
+}) => {
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  if (!user) {
+    throw new Error('User must be logged in to update a savings allocation');
+  }
+
+  const { data, error } = await supabase
+    .from('savings_allocations')
+    .update({
+      name: allocation.name,
+      percentage: allocation.percentage,
+      updated_at: new Date().toISOString()
+    })
+    .eq('id', allocation.id)
+    .eq('user_id', user.id)
+    .select()
+    .single();
+  
+  if (error) {
+    console.error('Error updating savings allocation:', error);
+    throw error;
+  }
+  
+  return data;
+};
+
+// New function to delete a savings allocation
+export const deleteSavingsAllocation = async (id: string) => {
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  if (!user) {
+    throw new Error('User must be logged in to delete a savings allocation');
+  }
+
+  const { error } = await supabase
+    .from('savings_allocations')
+    .delete()
+    .eq('id', id)
+    .eq('user_id', user.id);
+  
+  if (error) {
+    console.error('Error deleting savings allocation:', error);
+    throw error;
+  }
+  
   return true;
 };

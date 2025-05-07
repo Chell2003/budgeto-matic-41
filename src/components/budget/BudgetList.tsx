@@ -31,6 +31,7 @@ const categoryIcons: Record<string, React.ElementType> = {
   "personal care": UserCheck,
   bills: CreditCard,
   gifts: Gift,
+  savings: PiggyBank,
   other: Plus,
   miscellaneous: Plus
 };
@@ -50,6 +51,7 @@ const categoryColors: Record<string, string> = {
   "personal care": 'bg-violet-100',
   bills: 'bg-gray-100',
   gifts: 'bg-pink-100',
+  savings: 'bg-emerald-100',
   other: 'bg-slate-100',
   miscellaneous: 'bg-coral-100'
 };
@@ -89,7 +91,12 @@ const BudgetList: React.FC<BudgetListProps> = ({
                 <div className={cn("w-8 h-8 rounded-full flex items-center justify-center mr-3", bgColor)}>
                   <Icon size={16} className="text-foreground opacity-75" />
                 </div>
-                <h4 className="font-medium dark:text-white">{category.category}</h4>
+                <div>
+                  <h4 className="font-medium dark:text-white">{category.category}</h4>
+                  <p className="text-xs text-muted-foreground">
+                    {category.percentage?.toFixed(1)}% of income
+                  </p>
+                </div>
               </div>
               <div className="text-right">
                 <p className="text-sm font-semibold dark:text-white">
