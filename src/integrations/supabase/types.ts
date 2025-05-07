@@ -16,6 +16,7 @@ export type Database = {
           created_at: string
           id: string
           month: number
+          percentage: number | null
           user_id: string
           year: number
         }
@@ -25,6 +26,7 @@ export type Database = {
           created_at?: string
           id?: string
           month: number
+          percentage?: number | null
           user_id: string
           year: number
         }
@@ -34,6 +36,7 @@ export type Database = {
           created_at?: string
           id?: string
           month?: number
+          percentage?: number | null
           user_id?: string
           year?: number
         }
@@ -45,36 +48,34 @@ export type Database = {
           created_at: string
           full_name: string | null
           id: string
+          monthly_income: number | null
           updated_at: string
-          username: string | null
         }
         Insert: {
           avatar_url?: string | null
           created_at?: string
           full_name?: string | null
           id: string
+          monthly_income?: number | null
           updated_at?: string
-          username?: string | null
         }
         Update: {
           avatar_url?: string | null
           created_at?: string
           full_name?: string | null
           id?: string
+          monthly_income?: number | null
           updated_at?: string
-          username?: string | null
         }
         Relationships: []
       }
       savings_goals: {
         Row: {
-          category: string
           created_at: string
-          current_amount: number
+          current_amount: number | null
           frequency: string
           id: string
           name: string
-          start_date: string
           target_amount: number
           target_contribution: number | null
           target_date: string
@@ -82,13 +83,11 @@ export type Database = {
           user_id: string
         }
         Insert: {
-          category?: string
           created_at?: string
-          current_amount?: number
+          current_amount?: number | null
           frequency: string
           id?: string
           name: string
-          start_date?: string
           target_amount: number
           target_contribution?: number | null
           target_date: string
@@ -96,13 +95,11 @@ export type Database = {
           user_id: string
         }
         Update: {
-          category?: string
           created_at?: string
-          current_amount?: number
+          current_amount?: number | null
           frequency?: string
           id?: string
           name?: string
-          start_date?: string
           target_amount?: number
           target_contribution?: number | null
           target_date?: string
@@ -114,9 +111,9 @@ export type Database = {
       transactions: {
         Row: {
           amount: number
-          category: string
+          category: string | null
           created_at: string
-          description: string
+          description: string | null
           id: string
           receipt_url: string | null
           transaction_date: string
@@ -125,9 +122,9 @@ export type Database = {
         }
         Insert: {
           amount: number
-          category: string
+          category?: string | null
           created_at?: string
-          description: string
+          description?: string | null
           id?: string
           receipt_url?: string | null
           transaction_date?: string
@@ -136,9 +133,9 @@ export type Database = {
         }
         Update: {
           amount?: number
-          category?: string
+          category?: string | null
           created_at?: string
-          description?: string
+          description?: string | null
           id?: string
           receipt_url?: string | null
           transaction_date?: string
@@ -152,10 +149,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      increment_savings_goal: {
-        Args: { goal_id: string; amount: number }
-        Returns: number
-      }
+      [_ in never]: never
     }
     Enums: {
       [_ in never]: never
