@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { 
   ShoppingBag, Coffee, Car, Home, Gift, Utensils, 
@@ -98,10 +99,10 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({
         value={selectedCategory || undefined}
         onValueChange={onSelectCategory}
       >
-        <SelectTrigger className="w-full bg-white dark:bg-gray-800 dark:border-gray-700">
+        <SelectTrigger className="w-full">
           <SelectValue placeholder={`Choose a ${type === 'income' ? 'source' : 'category'}`} />
         </SelectTrigger>
-        <SelectContent className="bg-white dark:bg-gray-800 dark:border-gray-700">
+        <SelectContent>
           {categories.map((category) => {
             // Use iconMap to find the appropriate icon, defaulting to the category's icon or ShoppingBag
             const Icon = iconMap[category.icon] || iconMap[category.name.toLowerCase()] || ShoppingBag;
@@ -118,11 +119,11 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({
                 <div className="flex items-center gap-2">
                   <div className={cn(
                     "w-6 h-6 rounded-full flex items-center justify-center",
-                    `bg-${colorName}-100 dark:bg-${colorName}-900`
+                    `bg-${colorName}-100 dark:bg-${colorName}-900/30`
                   )}>
                     <Icon size={14} className={`text-${colorName}-600 dark:text-${colorName}-400`} />
                   </div>
-                  <span className="text-black dark:text-white">{category.name}</span>
+                  <span>{category.name}</span>
                 </div>
               </SelectItem>
             );

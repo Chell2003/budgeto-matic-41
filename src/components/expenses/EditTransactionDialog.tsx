@@ -8,12 +8,14 @@ import { toast } from "@/hooks/use-toast";
 import { updateTransaction } from "@/services/financeService";
 import { Transaction } from "@/components/dashboard/RecentTransactions";
 import AmountInput from '@/components/common/AmountInput';
+import { ExpenseCategory } from '@/components/expenses/CategorySelector';
 
 interface EditTransactionDialogProps {
   isOpen: boolean;
   onClose: () => void;
   transaction: Transaction | null;
   onTransactionUpdated: () => void;
+  categories?: ExpenseCategory[]; // Make categories optional
 }
 
 const EditTransactionDialog: React.FC<EditTransactionDialogProps> = ({
@@ -21,6 +23,7 @@ const EditTransactionDialog: React.FC<EditTransactionDialogProps> = ({
   onClose,
   transaction,
   onTransactionUpdated,
+  categories = [], // Default to empty array if not provided
 }) => {
   const [description, setDescription] = useState("");
   const [amount, setAmount] = useState<number>(0);
