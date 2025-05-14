@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -11,6 +12,7 @@ const AuthForm: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
+  const [username, setUsername] = useState(''); // New username field
   const [showPassword, setShowPassword] = useState(false);
   const { signIn, signUp, isLoading } = useAuth();
 
@@ -19,7 +21,7 @@ const AuthForm: React.FC = () => {
     if (activeTab === 'login') {
       await signIn(email, password);
     } else {
-      await signUp(email, password, { full_name: fullName });
+      await signUp(email, password, { full_name: fullName, username: username });
     }
   };
 
@@ -108,6 +110,17 @@ const AuthForm: React.FC = () => {
                   placeholder="John Smith"
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
+                />
+              </div>
+              <div className="space-y-2">
+                <label htmlFor="username" className="text-sm font-medium">Username</label>
+                <Input
+                  id="username"
+                  type="text"
+                  placeholder="johnsmith123"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  required
                 />
               </div>
               <div className="space-y-2">

@@ -10,11 +10,13 @@ import { supabase } from '@/integrations/supabase/client';
 import IncomeSourceSelector from '@/components/settings/IncomeSourceSelector';
 import SavingsAllocationManager from '@/components/settings/SavingsAllocationManager';
 import { Profile } from '@/types/database';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 const Settings: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [fullName, setFullName] = useState("");
+  const [username, setUsername] = useState("");
   const [incomeSource, setIncomeSource] = useState("");
   const { user } = useAuth();
 
@@ -37,6 +39,7 @@ const Settings: React.FC = () => {
         
         if (profile) {
           setFullName(profile.full_name || "");
+          setUsername(profile.username || "");
           setIncomeSource(profile.income_source || "");
         }
         
@@ -62,6 +65,7 @@ const Settings: React.FC = () => {
         .upsert({ 
           id: user.id,
           full_name: fullName,
+          username: username,
           income_source: incomeSource,
           updated_at: new Date().toISOString()
         });
@@ -88,6 +92,18 @@ const Settings: React.FC = () => {
     }
   };
 
+  const getInitials = () => {
+    return fullName
+      ? fullName
+          .split(' ')
+          .map((name) => name[0])
+          .join('')
+          .toUpperCase()
+      : username
+      ? username[0].toUpperCase()
+      : "U";
+  };
+
   return (
     <MobileLayout currentPage="settings">
       <header className="mb-6">
@@ -98,8 +114,15 @@ const Settings: React.FC = () => {
       <div className="space-y-6">
         {/* Profile Section */}
         <Card>
-          <CardHeader>
-            <CardTitle>Profile Information</CardTitle>
+          <CardHeader className="flex flex-row items-center gap-4">
+            <Avatar className="h-16 w-16">
+              <AvatarImage src="" />
+              <AvatarFallback className="text-lg">{getInitials()}</AvatarFallback>
+            </Avatar>
+            <div>
+              <CardTitle>{fullName || username || "User"}</CardTitle>
+              <p className="text-muted-foreground text-sm">{user?.email}</p>
+            </div>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
@@ -109,6 +132,16 @@ const Settings: React.FC = () => {
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
                   placeholder="Your name"
+                  disabled={isLoading}
+                />
+              </div>
+              
+              <div>
+                <label className="text-sm font-medium">Username</label>
+                <Input
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  placeholder="Your username"
                   disabled={isLoading}
                 />
               </div>
