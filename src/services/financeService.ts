@@ -1,11 +1,12 @@
 import { supabase } from "@/integrations/supabase/client";
-import { Transaction } from "@/components/dashboard/RecentTransactions";
+import { Transaction as UITransaction } from "@/components/dashboard/RecentTransactions";
 import { 
   Budget, 
   SavingsGoal, 
   SavingsAllocation, 
   IncomeCategory,
-  Profile
+  Profile,
+  Transaction
 } from "@/types/database";
 import { ExtendedBudget, ExtendedSavingsGoal, ExtendedTransaction } from "@/types/extended";
 
@@ -30,12 +31,12 @@ const categoryColors: Record<string, string> = {
   miscellaneous: 'bg-coral-100'
 };
 
-export const getTransactions = async (): Promise<Transaction[]> => {
+export const getTransactions = async (): Promise<UITransaction[]> => {
   try {
     const { data, error } = await supabase
       .from("transactions")
       .select("*")
-      .order("transaction_date", { ascending: false }) as { data: any[] | null, error: any };
+      .order("transaction_date", { ascending: false }) as { data: Transaction[] | null, error: any };
 
     if (error) {
       console.error("Error fetching transactions:", error);
@@ -47,14 +48,14 @@ export const getTransactions = async (): Promise<Transaction[]> => {
     }
 
     // Make sure to map all properties including receipt_url
-    return data.map((transaction: any) => ({
+    return data.map((transaction: Transaction) => ({
       id: transaction.id,
       description: transaction.description,
       amount: transaction.amount,
       category: transaction.category,
       date: transaction.transaction_date,
       receipt_url: transaction.receipt_url || null,
-    })) as Transaction[];
+    })) as UITransaction[];
   } catch (error) {
     console.error("Error in getTransactions:", error);
     throw error;

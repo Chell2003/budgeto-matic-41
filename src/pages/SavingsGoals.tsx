@@ -3,13 +3,14 @@ import React, { useState, useEffect } from 'react';
 import MobileLayout from '@/components/layout/MobileLayout';
 import { useAuth } from '@/hooks/use-auth';
 import { toast } from 'sonner';
-import { getSavingsGoals, SavingsGoal } from '@/services/financeService';
+import { getSavingsGoals } from '@/services/financeService';
 import CreateSavingsGoalDialog from '@/components/savings/CreateSavingsGoalDialog';
 import SavingsGoalCard from '@/components/savings/SavingsGoalCard';
 import { PiggyBank } from 'lucide-react';
+import { ExtendedSavingsGoal } from '@/types/extended';
 
 const SavingsGoals = () => {
-  const [goals, setGoals] = useState<SavingsGoal[]>([]);
+  const [goals, setGoals] = useState<ExtendedSavingsGoal[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { user } = useAuth();
 

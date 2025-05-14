@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { cn } from '@/lib/utils';
-import { Budget, getSavingsGoals, SavingsGoal } from '@/services/financeService';
+import { getSavingsGoals } from '@/services/financeService';
 import { 
   Select,
   SelectContent,
@@ -20,9 +20,10 @@ import {
   Popover,
   PopoverContent,
   PopoverTrigger 
-} from '@/components/ui/popover';
+} from "@/components/ui/popover";
 import { CalendarIcon } from 'lucide-react';
 import { format } from 'date-fns';
+import { ExtendedBudget, ExtendedSavingsGoal } from '@/types/extended';
 
 interface ExpenseFormProps {
   categories: ExpenseCategory[];
@@ -33,7 +34,7 @@ interface ExpenseFormProps {
     date: Date;
     receipt?: File;
   }) => void;
-  budgets?: Budget[];
+  budgets?: ExtendedBudget[];
 }
 
 const ExpenseForm: React.FC<ExpenseFormProps> = ({ 
@@ -47,7 +48,7 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
   const [selectedIncomeCategory, setSelectedIncomeCategory] = useState<string | null>(null);
   const [savingsType, setSavingsType] = useState<'regular' | 'emergency' | 'goal'>('regular');
   const [selectedGoal, setSelectedGoal] = useState<string | null>(null);
-  const [savingsGoals, setSavingsGoals] = useState<SavingsGoal[]>([]);
+  const [savingsGoals, setSavingsGoals] = useState<ExtendedSavingsGoal[]>([]);
   const [date, setDate] = useState<Date>(new Date());
   const [transactionType, setTransactionType] = useState<'expense' | 'income' | 'savings'>('expense');
   const [customExpenseCategory, setCustomExpenseCategory] = useState<string>('');

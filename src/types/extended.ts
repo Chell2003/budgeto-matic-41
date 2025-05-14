@@ -18,7 +18,7 @@ export interface ExtendedSavingsGoal extends SavingsGoal {
   };
 }
 
-// Extended Transaction type that might include transaction_type
-export interface ExtendedTransaction extends Transaction {
+// Extended Transaction type with transaction_type that matches the database version
+export interface ExtendedTransaction extends Omit<Transaction, 'transaction_type'> {
   transaction_type?: string;
 }

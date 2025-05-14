@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
@@ -7,7 +6,7 @@ import {
   Utensils, Briefcase, Smartphone, Plus, PiggyBank, 
   ArrowRightLeft, Target, FileImage
 } from 'lucide-react';
-import { Budget } from '@/services/financeService';
+import { ExtendedBudget } from '@/types/extended';
 import { 
   Dialog,
   DialogContent,
@@ -26,7 +25,7 @@ export interface Transaction {
 
 interface RecentTransactionsProps {
   transactions: Transaction[];
-  budgets?: Budget[];
+  budgets?: ExtendedBudget[];
   onCategoryClick?: (category: string) => void;
   onTransactionUpdated?: () => void;
 }
