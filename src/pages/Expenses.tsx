@@ -8,7 +8,7 @@ import { toast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/use-auth';
 import { Progress } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
-import { Budget } from '@/services/financeService';
+import { ExtendedBudget } from '@/types/extended';
 import { ExpenseCategory } from '@/components/expenses/CategorySelector';
 import { PiggyBank } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -16,7 +16,7 @@ import { Link } from 'react-router-dom';
 
 const Expenses = () => {
   const [transactions, setTransactions] = useState([]);
-  const [budgets, setBudgets] = useState<Budget[]>([]);
+  const [budgets, setBudgets] = useState<ExtendedBudget[]>([]);
   const [budgetCategories, setBudgetCategories] = useState<ExpenseCategory[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isBudgetLoading, setIsBudgetLoading] = useState(true);
@@ -168,6 +168,10 @@ const Expenses = () => {
   const handleCategoryClick = (category: string) => {
     navigate(`/category/${encodeURIComponent(category)}`);
   };
+
+  // Calculate total budget and total spent
+  const totalBudget = budgets.reduce((sum, category) => sum + category.allocated, 0);
+  const totalSpent = budgets.reduce((sum, category) => sum + category.spent, 0);
 
   return (
     <MobileLayout currentPage="expenses">

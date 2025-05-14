@@ -1,6 +1,8 @@
+
 import React from 'react';
 import { cn } from '@/lib/utils';
-import { SavingsGoal, addTransaction } from '@/services/financeService';
+import { addTransaction } from '@/services/financeService';
+import { ExtendedSavingsGoal } from '@/types/extended';
 import { Progress } from '@/components/ui/progress';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { PiggyBank, Calendar, Target, Coins, Plus } from 'lucide-react';
@@ -9,7 +11,7 @@ import { Button } from '@/components/ui/button';
 import { toast } from '@/hooks/use-toast';
 
 interface SavingsGoalCardProps {
-  goal: SavingsGoal;
+  goal: ExtendedSavingsGoal;
   onUpdate: () => void;
 }
 

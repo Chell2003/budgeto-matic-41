@@ -2,7 +2,7 @@
 import React from 'react';
 import { Progress } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
-import { Budget } from '@/services/financeService';
+import { ExtendedBudget } from '@/types/extended';
 import CreateBudgetDialog from './CreateBudgetDialog';
 import { 
   ShoppingBag, Coffee, Car, Home, Gift, Utensils, 
@@ -12,7 +12,7 @@ import {
 } from 'lucide-react';
 
 interface BudgetListProps {
-  budgetCategories: Budget[];
+  budgetCategories: ExtendedBudget[];
   onSelectCategory?: (categoryId: string) => void;
   onBudgetCreated?: () => void;
 }

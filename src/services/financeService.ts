@@ -7,8 +7,9 @@ import {
   IncomeCategory,
   Profile
 } from "@/types/database";
+import { ExtendedBudget, ExtendedSavingsGoal, ExtendedTransaction } from "@/types/extended";
 
-export { Budget, SavingsGoal };
+export type { Budget, SavingsGoal };
 
 const categoryColors: Record<string, string> = {
   shopping: 'bg-purple-100',
@@ -207,7 +208,7 @@ export const updateTransaction = async (transaction: {
   return data;
 };
 
-export const getBudgets = async () => {
+export const getBudgets = async (): Promise<ExtendedBudget[]> => {
   const currentDate = new Date();
   const currentMonth = currentDate.getMonth() + 1;
   const currentYear = currentDate.getFullYear();
@@ -266,12 +267,15 @@ export const getBudgets = async () => {
     
     return {
       id: budget.id,
+      user_id: budget.user_id,
       category: budget.category,
       allocated: allocatedAmount,
       percentage: budget.percentage || 0,
+      month: budget.month,
+      year: budget.year,
       spent: spendingByCategory[normalizedBudgetCategory] || 0,
       color: categoryColors[normalizedBudgetCategory] || 'gray'
-    };
+    } as ExtendedBudget;
   });
 };
 
@@ -370,7 +374,7 @@ export const getFinancialSummary = async () => {
   };
 };
 
-export const getSavingsGoals = async () => {
+export const getSavingsGoals = async (): Promise<ExtendedSavingsGoal[]> => {
   const { data, error } = await supabase
     .from('savings_goals')
     .select('*')
@@ -408,15 +412,7 @@ export const getSavingsGoals = async () => {
         weeks: weeksRemaining > 0 ? weeksRemaining : 0,
         months: monthsRemaining > 0 ? monthsRemaining : 0,
       }
-    } as SavingsGoal & {
-      progress: number;
-      remaining_amount: number;
-      time_remaining: {
-        days: number;
-        weeks: number;
-        months: number;
-      };
-    };
+    } as ExtendedSavingsGoal;
   });
 };
 
