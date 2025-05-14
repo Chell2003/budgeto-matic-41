@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { 
   Dialog,
@@ -31,6 +30,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { addBudget, getFinancialSummary } from '@/services/financeService';
 import BudgetCalculator from './BudgetCalculator';
+import { supabase } from '@/integrations/supabase/client';
 
 // Predefined budget categories - aligned with expense categories
 const BUDGET_CATEGORIES = [
