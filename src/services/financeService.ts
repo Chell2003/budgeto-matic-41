@@ -1,34 +1,14 @@
 import { supabase } from "@/integrations/supabase/client";
 import { Transaction } from "@/components/dashboard/RecentTransactions";
+import { 
+  Budget, 
+  SavingsGoal, 
+  SavingsAllocation, 
+  IncomeCategory,
+  Profile
+} from "@/types/database";
 
-export interface Budget {
-  id: string;
-  category: string;
-  allocated: number;
-  spent: number;
-  percentage: number;
-  color: string;
-}
-
-export interface SavingsGoal {
-  id: string;
-  name: string;
-  target_amount: number;
-  current_amount: number;
-  target_date: string;
-  frequency: 'weekly' | 'monthly' | 'none';
-  created_at: string;
-  updated_at: string;
-  progress: number;
-  remaining_amount: number;
-  target_contribution?: number;
-  time_remaining: {
-    days: number;
-    weeks: number;
-    months: number;
-  };
-  user_id: string;
-}
+export { Budget, SavingsGoal };
 
 const categoryColors: Record<string, string> = {
   shopping: 'bg-purple-100',
@@ -54,7 +34,7 @@ export const getTransactions = async (): Promise<Transaction[]> => {
     const { data, error } = await supabase
       .from("transactions")
       .select("*")
-      .order("transaction_date", { ascending: false });
+      .order("transaction_date", { ascending: false }) as { data: any[] | null, error: any };
 
     if (error) {
       console.error("Error fetching transactions:", error);
@@ -240,7 +220,7 @@ export const getBudgets = async () => {
     .from('budgets')
     .select('*')
     .eq('month', currentMonth)
-    .eq('year', currentYear);
+    .eq('year', currentYear) as { data: Budget[] | null, error: any };
 
   if (budgetsError) {
     console.error('Error fetching budgets:', budgetsError);
@@ -255,7 +235,7 @@ export const getBudgets = async () => {
     .select('*')
     .eq('transaction_type', 'expense')
     .gte('transaction_date', startOfMonth)
-    .lte('transaction_date', endOfMonth);
+    .lte('transaction_date', endOfMonth) as { data: Transaction[] | null, error: any };
 
   if (transactionsError) {
     console.error('Error fetching transactions for budget:', transactionsError);
@@ -264,16 +244,18 @@ export const getBudgets = async () => {
 
   const spendingByCategory: Record<string, number> = {};
   
-  transactions.forEach(transaction => {
-    const category = transaction.category.trim().toLowerCase();
-    const amount = Math.abs(Number(transaction.amount));
-    
-    spendingByCategory[category] = (spendingByCategory[category] || 0) + amount;
-  });
+  if (transactions) {
+    transactions.forEach(transaction => {
+      const category = transaction.category.trim().toLowerCase();
+      const amount = Math.abs(Number(transaction.amount));
+      
+      spendingByCategory[category] = (spendingByCategory[category] || 0) + amount;
+    });
+  }
 
   console.log('Spending by Category:', spendingByCategory);
 
-  return budgets.map(budget => {
+  return (budgets || []).map(budget => {
     const normalizedBudgetCategory = budget.category.trim().toLowerCase();
     
     // Calculate allocated amount based on percentage of income
@@ -290,7 +272,7 @@ export const getBudgets = async () => {
       spent: spendingByCategory[normalizedBudgetCategory] || 0,
       color: categoryColors[normalizedBudgetCategory] || 'gray'
     };
-  }) as Budget[];
+  });
 };
 
 export const addBudget = async (budget: {
@@ -313,7 +295,7 @@ export const addBudget = async (budget: {
     .from('budgets')
     .select('percentage')
     .eq('month', currentMonth)
-    .eq('year', currentYear);
+    .eq('year', currentYear) as { data: Pick<Budget, 'percentage'>[] | null, error: any };
 
   const totalAllocatedPercentage = existingBudgets?.reduce((sum, item) => sum + (item.percentage || 0), 0) || 0;
   
@@ -349,7 +331,7 @@ export const getFinancialSummary = async () => {
   const { data, error } = await supabase
     .from('transactions')
     .select('*')
-    .gte('transaction_date', startOfMonth);
+    .gte('transaction_date', startOfMonth) as { data: Transaction[] | null, error: any };
   
   if (error) {
     console.error('Error fetching financial summary:', error);
@@ -360,21 +342,23 @@ export const getFinancialSummary = async () => {
   let expenses = 0;
   let savings = 0;
   
-  data.forEach(transaction => {
-    const amount = Number(transaction.amount);
-    
-    switch (transaction.transaction_type) {
-      case 'savings':
-        savings += amount;
-        break;
-      case 'income':
-        income += amount;
-        break;
-      case 'expense':
-        expenses += Math.abs(amount);
-        break;
-    }
-  });
+  if (data) {
+    data.forEach(transaction => {
+      const amount = Number(transaction.amount);
+      
+      switch (transaction.transaction_type) {
+        case 'savings':
+          savings += amount;
+          break;
+        case 'income':
+          income += amount;
+          break;
+        case 'expense':
+          expenses += Math.abs(amount);
+          break;
+      }
+    });
+  }
   
   const balance = income - expenses;
   
@@ -390,16 +374,16 @@ export const getSavingsGoals = async () => {
   const { data, error } = await supabase
     .from('savings_goals')
     .select('*')
-    .order('created_at', { ascending: false });
+    .order('created_at', { ascending: false }) as { data: SavingsGoal[] | null, error: any };
 
   if (error) {
     console.error('Error fetching savings goals:', error);
     throw error;
   }
 
-  return data.map(goal => {
+  return (data || []).map(goal => {
     const targetAmount = Number(goal.target_amount);
-    const currentAmount = Number(goal.current_amount);
+    const currentAmount = Number(goal.current_amount || 0);
     const progress = (currentAmount / targetAmount) * 100;
     const remainingAmount = targetAmount - currentAmount;
     
@@ -424,7 +408,15 @@ export const getSavingsGoals = async () => {
         weeks: weeksRemaining > 0 ? weeksRemaining : 0,
         months: monthsRemaining > 0 ? monthsRemaining : 0,
       }
-    } as SavingsGoal;
+    } as SavingsGoal & {
+      progress: number;
+      remaining_amount: number;
+      time_remaining: {
+        days: number;
+        weeks: number;
+        months: number;
+      };
+    };
   });
 };
 
@@ -469,14 +461,14 @@ export const updateSavingsGoalAmount = async (goalId: string, amount: number) =>
     .from('savings_goals')
     .select('current_amount')
     .eq('id', goalId)
-    .single();
+    .single() as { data: Pick<SavingsGoal, 'current_amount'> | null, error: any };
 
   if (fetchError) {
     console.error('Error fetching current savings goal amount:', fetchError);
     throw fetchError;
   }
 
-  const newAmount = Number(currentGoal.current_amount) + amount;
+  const newAmount = Number(currentGoal?.current_amount || 0) + amount;
 
   const { data, error } = await supabase
     .from('savings_goals')
@@ -521,14 +513,14 @@ export const getSavingsAllocations = async () => {
   const { data, error } = await supabase
     .from('savings_allocations')
     .select('*')
-    .eq('user_id', user.id);
+    .eq('user_id', user.id) as { data: SavingsAllocation[] | null, error: any };
 
   if (error) {
     console.error('Error fetching savings allocations:', error);
     throw error;
   }
 
-  return data;
+  return data || [];
 };
 
 // New function to add a savings allocation
@@ -546,7 +538,7 @@ export const addSavingsAllocation = async (allocation: {
   const { data: existingAllocations } = await supabase
     .from('savings_allocations')
     .select('percentage')
-    .eq('user_id', user.id);
+    .eq('user_id', user.id) as { data: Pick<SavingsAllocation, 'percentage'>[] | null, error: any };
 
   const totalAllocatedPercentage = existingAllocations?.reduce((sum, item) => sum + item.percentage, 0) || 0;
   

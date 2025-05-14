@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -7,14 +6,7 @@ import { Progress } from '@/components/ui/progress';
 import { toast } from 'sonner';
 import { PiggyBank, Plus, Trash2 } from 'lucide-react';
 import { getSavingsAllocations, addSavingsAllocation, deleteSavingsAllocation } from '@/services/financeService';
-
-interface SavingsAllocation {
-  id: string;
-  name: string;
-  percentage: number;
-  created_at: string;
-  updated_at: string;
-}
+import { SavingsAllocation } from '@/types/database';
 
 const SavingsAllocationManager: React.FC = () => {
   const [allocations, setAllocations] = useState<SavingsAllocation[]>([]);
@@ -27,7 +19,7 @@ const SavingsAllocationManager: React.FC = () => {
     try {
       setLoading(true);
       const data = await getSavingsAllocations();
-      setAllocations(data);
+      setAllocations(data as SavingsAllocation[]);
       
       const total = data.reduce((sum, allocation) => sum + allocation.percentage, 0);
       setTotalPercentage(total);

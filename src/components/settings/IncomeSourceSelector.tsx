@@ -8,15 +8,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { supabase } from '@/integrations/supabase/client';
+import { IncomeCategory } from '@/types/database';
 
 interface IncomeSourceSelectorProps {
   currentSource: string;
   onSourceChange: (source: string) => void;
-}
-
-interface IncomeCategory {
-  id: string;
-  name: string;
 }
 
 const IncomeSourceSelector: React.FC<IncomeSourceSelectorProps> = ({ 
@@ -32,7 +28,7 @@ const IncomeSourceSelector: React.FC<IncomeSourceSelectorProps> = ({
         setLoading(true);
         const { data, error } = await supabase
           .from('income_categories')
-          .select('id, name');
+          .select('*') as { data: IncomeCategory[] | null, error: any };
         
         if (error) {
           throw error;

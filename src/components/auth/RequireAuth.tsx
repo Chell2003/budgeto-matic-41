@@ -1,27 +1,31 @@
 
-import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/use-auth';
 
-const RequireAuth: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { user, isLoading } = useAuth();
-  const navigate = useNavigate();
+interface RequireAuthProps {
+  children: React.ReactNode;
+}
 
-  useEffect(() => {
-    if (!isLoading && !user) {
-      navigate('/auth');
-    }
-  }, [user, isLoading, navigate]);
+const RequireAuth: React.FC<RequireAuthProps> = ({ children }) => {
+  const { user, isLoading } = useAuth();
+  const location = useLocation();
 
   if (isLoading) {
+    // Show a loading indicator while checking the auth state
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary"></div>
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
       </div>
     );
   }
 
-  return user ? <>{children}</> : null;
+  if (!user) {
+    // If not authenticated, redirect to auth page
+    return <Navigate to="/auth" state={{ from: location }} replace />;
+  }
+
+  return <>{children}</>;
 };
 
 export default RequireAuth;

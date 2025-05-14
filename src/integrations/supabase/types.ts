@@ -9,7 +9,186 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      budgets: {
+        Row: {
+          allocated: number
+          category: string
+          created_at: string | null
+          id: string
+          month: number
+          percentage: number | null
+          user_id: string
+          year: number
+        }
+        Insert: {
+          allocated: number
+          category: string
+          created_at?: string | null
+          id?: string
+          month: number
+          percentage?: number | null
+          user_id: string
+          year: number
+        }
+        Update: {
+          allocated?: number
+          category?: string
+          created_at?: string | null
+          id?: string
+          month?: number
+          percentage?: number | null
+          user_id?: string
+          year?: number
+        }
+        Relationships: []
+      }
+      income_categories: {
+        Row: {
+          created_at: string | null
+          id: string
+          name: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          name: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string | null
+          full_name: string | null
+          id: string
+          income_source: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string | null
+          full_name?: string | null
+          id: string
+          income_source?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string | null
+          full_name?: string | null
+          id?: string
+          income_source?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      savings_allocations: {
+        Row: {
+          created_at: string | null
+          id: string
+          name: string
+          percentage: number
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          name: string
+          percentage: number
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          name?: string
+          percentage?: number
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      savings_goals: {
+        Row: {
+          created_at: string | null
+          current_amount: number | null
+          frequency: string
+          id: string
+          name: string
+          target_amount: number
+          target_contribution: number | null
+          target_date: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          current_amount?: number | null
+          frequency: string
+          id?: string
+          name: string
+          target_amount: number
+          target_contribution?: number | null
+          target_date: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          current_amount?: number | null
+          frequency?: string
+          id?: string
+          name?: string
+          target_amount?: number
+          target_contribution?: number | null
+          target_date?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      transactions: {
+        Row: {
+          amount: number
+          category: string
+          created_at: string | null
+          description: string
+          id: string
+          receipt_url: string | null
+          transaction_date: string
+          transaction_type: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          category: string
+          created_at?: string | null
+          description: string
+          id?: string
+          receipt_url?: string | null
+          transaction_date: string
+          transaction_type: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          category?: string
+          created_at?: string | null
+          description?: string
+          id?: string
+          receipt_url?: string | null
+          transaction_date?: string
+          transaction_type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

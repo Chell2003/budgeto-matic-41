@@ -31,6 +31,7 @@ import * as z from 'zod';
 import { addBudget, getFinancialSummary } from '@/services/financeService';
 import BudgetCalculator from './BudgetCalculator';
 import { supabase } from '@/integrations/supabase/client';
+import { Budget } from '@/types/database';
 
 // Predefined budget categories - aligned with expense categories
 const BUDGET_CATEGORIES = [
@@ -87,9 +88,9 @@ const CreateBudgetDialog: React.FC<CreateBudgetDialogProps> = ({ onBudgetCreated
         setIncome(summary.income);
         
         // Update total budgeted and remaining percentage
-        const { data: budgets } = await supabase
+        const { data: budgets, error } = await supabase
           .from('budgets')
-          .select('percentage');
+          .select('*') as { data: Budget[] | null, error: any };
         
         if (budgets) {
           const totalPercentage = budgets.reduce((sum, budget) => sum + (budget.percentage || 0), 0);
